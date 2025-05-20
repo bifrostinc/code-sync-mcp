@@ -9,6 +9,10 @@ OUTPUT_DIR := $(shell pwd)/binaries
 RSYNC_VERSION := 3.4.1
 BUILDX_BUILDER := multi-arch-builder
 
+# Set the paths for protoc-gen-go
+GOBIN ?= $(shell go env GOPATH)/bin
+PATH := $(GOBIN):$(PATH)
+
 
 help:
 	@echo "Available commands:"
@@ -89,7 +93,7 @@ proto: install-protoc-gen-go
 	fi
 
 	mkdir -p pb && \
-	protoc --proto_path=proto --go_out=pb --go_opt=paths=source_relative ../bifrost/proto/ws.proto
+	protoc --proto_path=../bifrost/proto --go_out=pb --go_opt=paths=source_relative ../bifrost/proto/ws.proto
 
 install-protoc-gen-go:
 	@if ! command -v protoc-gen-go &> /dev/null; then \
