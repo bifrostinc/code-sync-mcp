@@ -1,4 +1,4 @@
-# File Watcher Sidecar
+# Code Sync Sidecar
 
 This sidecar sits alongside apps and managing getting code into the right place.
 
