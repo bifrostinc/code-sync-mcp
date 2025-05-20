@@ -2,7 +2,7 @@
 FROM golang:1.24-alpine AS builder
 
 WORKDIR /app
-COPY . .
+COPY code-sync-sidecar/ .
 
 # Build the Go application statically
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o code-sync-sidecar .
@@ -17,8 +17,8 @@ COPY --from=builder /app/code-sync-sidecar /app/code-sync-sidecar
 RUN mkdir -p /app/bin
 
 
-COPY binaries/rsync-*-linux-amd64 /app/bin/rsync_amd64
-COPY binaries/rsync-*-linux-arm64 /app/bin/rsync_arm64
+COPY code-sync-sidecar/binaries/rsync-*-linux-amd64 /app/bin/rsync_amd64
+COPY code-sync-sidecar/binaries/rsync-*-linux-arm64 /app/bin/rsync_arm64
 
 RUN echo '#!/bin/sh' > /app/bin/rsync && \
     echo 'arch=$(uname -m)' >> /app/bin/rsync && \
@@ -32,7 +32,7 @@ RUN echo '#!/bin/sh' > /app/bin/rsync && \
     echo 'fi' >> /app/bin/rsync && \
     chmod +x /app/bin/rsync
 
-COPY launcher-script/rsync-launcher.sh /app/bin/rsync-launcher.sh
+COPY code-sync-sidecar/launcher-script/rsync-launcher.sh /app/bin/rsync-launcher.sh
 RUN chmod +x /app/bin/rsync-launcher.sh
 
 

@@ -1,2 +1,2 @@
-binaries/git*
-binaries/rsync*
+code-sync-sidecar/binaries/git*
+code-sync-sidecar/binaries/rsync*

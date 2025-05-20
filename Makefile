@@ -5,7 +5,7 @@ IMAGE_TAG := latest
 DOCKER_IMAGE := conorbranagan/$(SIDECAR_IMAGE)
 AWS_REGION := us-east-1
 
-OUTPUT_DIR := $(shell pwd)/binaries
+BINARIES_DIR := $(shell pwd)/code-sync-sidecar/binaries
 RSYNC_VERSION := 3.4.1
 BUILDX_BUILDER := multi-arch-builder
 
@@ -16,8 +16,8 @@ PATH := $(GOBIN):$(PATH)
 
 help:
 	@echo "Available commands:"
-	@echo "  push-ecr                 - Build and push sidecar image to ECR"
-	@echo "  push-docker              - Build and push sidecar image to Docker"
+	@echo "  sidecar-push-ecr         - Build and push sidecar image to ECR"
+	@echo "  sidecar-push-docker      - Build and push sidecar image to Docker"
 	@echo ""
 	@echo "  build-rsync-static-amd64 - Build static rsync binaries for amd64"
 	@echo "  build-rsync-static-arm64 - Build static rsync binaries for arm64"	
@@ -32,53 +32,63 @@ setup-buildx:
 		docker buildx use $(BUILDX_BUILDER); \
 	fi
 
+check-aws-profile:
+	@if [ -z "$$AWS_PROFILE" ]; then \
+		echo "Error: AWS_PROFILE environment variable is not set"; \
+		exit 1; \
+	fi
+
 # Build Rsync static using Dockerfile
 build-rsync-static-amd64:
-	mkdir -p $(OUTPUT_DIR)
+	mkdir -p $(BINARIES_DIR)
 	@echo "Checking if rsync binaries already exist..."
-	@if [ -f "$(OUTPUT_DIR)/rsync-$(RSYNC_VERSION)-linux-amd64" ]; then \
+	@if [ -f "$(BINARIES_DIR)/rsync-$(RSYNC_VERSION)-linux-amd64" ]; then \
 		echo "Rsync binaries already exist. Skipping build."; \
 	else \
 		echo "Building static rsync binaries for amd64..." && \
-		docker build -t rsync-static-builder-amd64 -f rsync/amd64.Dockerfile rsync; \
-		docker run --rm -v $(OUTPUT_DIR):/output rsync-static-builder-amd64; \
-		cp $(OUTPUT_DIR)/rsync-linux-amd64 $(OUTPUT_DIR)/rsync-$(RSYNC_VERSION)-linux-amd64; \
-		echo "Build complete. Binaries are in ./$(OUTPUT_DIR)/"; \
+		docker build -t rsync-static-builder-amd64 -f code-sync-sidecar/rsync/amd64.Dockerfile code-sync-sidecar/rsync; \
+		docker run --rm -v $(BINARIES_DIR):/output rsync-static-builder-amd64; \
+		cp $(BINARIES_DIR)/rsync-linux-amd64 $(BINARIES_DIR)/rsync-$(RSYNC_VERSION)-linux-amd64; \
+		echo "Build complete. Binaries are in ./$(BINARIES_DIR)/"; \
 	fi
 
 build-rsync-static-arm64:
-	mkdir -p $(OUTPUT_DIR)
+	mkdir -p $(BINARIES_DIR)
 	@echo "Checking if rsync binaries already exist..."
-	@if [ -f "$(OUTPUT_DIR)/rsync-$(RSYNC_VERSION)-linux-arm64" ]; then \
-	  echo "Rsync binaries already exist. Skipping build."; \
-	else \
-	  echo "Building static rsync binaries for arm64..." && \
-	  docker build -t rsync-static-builder-arm64 -f rsync/arm64.Dockerfile rsync; \
-	  docker run --rm -v $(OUTPUT_DIR):/output rsync-static-builder-arm64; \
-	  cp $(OUTPUT_DIR)/rsync-linux-arm64 $(OUTPUT_DIR)/rsync-$(RSYNC_VERSION)-linux-arm64; \
-	  echo "Build complete. Binaries are in ./$(OUTPUT_DIR)/"; \
-	fi
-
+	@echo "ARM64 rsync build is currently disabled in Makefile"
+	# @if [ -f "$(OUTPUT_DIR)/rsync-$(RSYNC_VERSION)-linux-arm64" ]; then \
+	#   echo "Rsync binaries already exist. Skipping build."; \
+	# else \
+	#   echo "Building static rsync binaries for arm64..." && \
+	#   docker build -t rsync-static-builder-arm64 -f code-sync-sidecar/rsync/arm64.Dockerfile code-sync-sidecar/rsync; \
+	#   docker run --rm -v $(OUTPUT_DIR):/output rsync-static-builder-arm64; \
+	#   cp $(OUTPUT_DIR)/rsync-linux-arm64 $(OUTPUT_DIR)/rsync-$(RSYNC_VERSION)-linux-arm64; \
+	#   echo "Build complete. Binaries are in ./$(OUTPUT_DIR)/"; \
+	# fi
 
 # Build Rsync static using Dockerfile
 build-rsync-static: build-rsync-static-amd64 build-rsync-static-arm64
-	@echo "All static Rsync binaries built successfully in $(OUTPUT_DIR)"
+	@echo "All static Rsync binaries built successfully in $(BINARIES_DIR)"
 
 # Build sidecar image
-push-ecr: check-aws-profile build-rsync-static setup-buildx
+sidecar-push-ecr: check-aws-profile build-rsync-static setup-buildx
 	$(eval ECR_REGISTRY := $(shell aws sts get-caller-identity --query Account --output text).dkr.ecr.$(AWS_REGION).amazonaws.com)
-	$(eval IMG := $(ECR_REGISTRY)/$(SIDECAR_IMAGE):$(IMAGE_TAG))
+	$(eval IMG := $(ECR_REGISTRY)/$(SIDECAR_IMAGE):$(IMAGE_TAG)) # Using generic IMAGE_TAG, consider GIT_COMMIT too
 	$(eval ECR_PASSWORD := $(shell aws ecr get-login-password --region $(AWS_REGION)))
 	@echo $(ECR_PASSWORD) | docker login --username AWS --password-stdin $(ECR_REGISTRY) > /dev/null
 	@aws ecr describe-repositories --repository-names $(SIDECAR_IMAGE) --region $(AWS_REGION) > /dev/null 2>&1 || \
 		aws ecr create-repository --repository-name $(SIDECAR_IMAGE) --region $(AWS_REGION) > /dev/null
-	docker buildx build --no-cache -f Dockerfile --platform $(SUPPORTED_PLATFORMS) -t $(IMG) --push .
+	docker buildx build --no-cache -f code-sync-sidecar/Dockerfile --platform $(SUPPORTED_PLATFORMS) -t $(IMG) --push .
 	@echo "Sidecar image successfully pushed to $(IMG)"
 
-push-docker: build-rsync-static setup-buildx
-	$(eval IMG := $(DOCKER_IMAGE):$(IMAGE_TAG))
-	docker buildx build --no-cache -f Dockerfile --platform $(SUPPORTED_PLATFORMS) -t $(IMG) --push .
+sidecar-push-docker: build-rsync-static setup-buildx
+	$(eval IMG := conorbranagan/$(SIDECAR_IMAGE):$(IMAGE_TAG)) # Using generic IMAGE_TAG
+	docker buildx build --no-cache -f code-sync-sidecar/Dockerfile --platform $(SUPPORTED_PLATFORMS) -t $(IMG) --push .
 	@echo "Sidecar image successfully pushed to $(IMG)"
+
+sidecar-deploy: sidecar-push-ecr # sidecar-push-docker seems like an alternative, not a sequence for one deploy
+	@echo "Deploying sidecar image to ECR..." # This target seems incomplete, no ECS update shown
+
 
 #
 # Proto commands

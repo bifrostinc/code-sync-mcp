@@ -15,7 +15,8 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version-file: "go.mod"
+          go-version-file: "code-sync-sidecar/go.mod"
 
       - name: Test
+        working-directory: ./code-sync-sidecar
         run: go test ./...
