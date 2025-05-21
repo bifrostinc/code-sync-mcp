@@ -1,0 +1,23 @@
+[project]
+name = "code-sync-proxy"
+version = "0.1.0"
+description = "Code Sync Proxy"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi[standard]>=0.115.12",
+    "json-log-formatter>=1.1.1",
+    "protobuf>=5.29.4",
+    "pydantic-settings>=2.9.1",
+    "redis>=6.1.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.5",
+    "pytest-asyncio>=0.26.0",
+    "ruff>=0.11.4",
+]
+
+[tool.pytest.ini_options]
+asyncio_default_fixture_loop_scope = "function"
