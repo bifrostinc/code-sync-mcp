@@ -1,10 +1,10 @@
 [project]
 name = "code-sync-mcp"
-version = "0.1.4"
+version = "0.1.5"
 description = "Code Sync MCP Server"
 readme = "README.md"
 requires-python = ">=3.13"
-license = {text = "MIT"}  # or whatever license you choose
+license = {text = "Apache-2.0"}
 authors = [
     {name = "Conor Branagan", email = "conor@bifrost.inc"},
 ]
@@ -15,7 +15,7 @@ keywords = ["mcp", "server", "code", "sync"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
+    "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.13",
 ]
