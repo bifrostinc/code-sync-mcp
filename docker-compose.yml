@@ -1,0 +1,65 @@
+services:
+  #
+  # Code Sync Proxy - Provides a simple proxy layer between the local machine and the sidecar.
+  # Both the sidecar and the local machine will connect to the proxy via a websocket.
+  #
+  code-sync-proxy:
+    platform: linux/amd64
+    build: code-sync-proxy
+    environment:
+      - PROXY_API_KEY=${PROXY_API_KEY}
+    ports:
+      - "8000:8000"
+
+  #
+  # Sample App + Sidecar - Demonstrates the code sync proxy in action.
+  # In a real-world scenario you would, for example, run the sidecar in the service pod in K8s
+  # or as an additional container in an ECS task.
+  #
+
+  demo-app:
+    platform: linux/amd64
+    build: demo-app
+    ports:
+      - "8080:8000"
+    # The entrypoint script will wrap the command with the code sync launcher.
+    command: /code-sync-entrypoint.sh
+    healthcheck:
+      # Use a healthcheck to ensure there's traffic going to the app.
+      # Using a python commmand because the minimal image does not have curl or wget.
+      test:
+        [
+          "CMD",
+          "python3",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')",
+        ]
+      interval: 5s
+      timeout: 1s
+      retries: 3
+
+    # This configuration is key to ensure that the sidecar can share app files for syncing.
+    volumes:
+      - app-files:/app-files
+    pid: "host"
+    depends_on:
+      - code-sync-proxy
+
+  code-sync-sidecar:
+    platform: linux/amd64
+    image: conorbranagan/code-sync-sidecar
+    environment:
+      - BIFROST_API_URL=http://code-sync-proxy:8000
+      - BIFROST_API_KEY=${PROXY_API_KEY}
+      - BIFROST_APP_ID=standalone
+      - BIFROST_DEPLOYMENT_ID=standalone
+
+    # This configuration is key to ensure that the sidecar can share app files for syncing.
+    volumes:
+      - app-files:/app-files
+    pid: "host"
+    depends_on:
+      - code-sync-proxy
+
+volumes:
+  app-files:
