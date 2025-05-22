@@ -1,0 +1,45 @@
+name: Code Sync Proxy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.13"
+
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Install dependencies
+        run: |
+          cd code-sync-proxy
+          uv venv
+          source .venv/bin/activate
+          uv pip install pytest
+          if [ -f pyproject.toml ]; then uv pip install -e .; fi
+
+      - name: Run tests
+        run: |
+          cd code-sync-proxy
+          source .venv/bin/activate
+          python -m pytest -v
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: code-sync-proxy/pytest-results.xml
+          if-no-files-found: ignore
