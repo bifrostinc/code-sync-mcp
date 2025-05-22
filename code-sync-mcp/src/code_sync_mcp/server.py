@@ -10,7 +10,6 @@ from typing import AsyncIterator
 from mcp.server.fastmcp import FastMCP, Context
 
 from code_sync_mcp.client_manager import ClientManager
-from code_sync_mcp.verify_handler import HTTPTest, BrowserTest, VerifyRequest
 
 log = logging.getLogger(__name__)
 
@@ -66,37 +65,9 @@ async def push_changes(
         raise
 
 
-@mcp.tool()
-async def verify_changes(
-    ctx: Context,
-    app_id: str,
-    deployment_id: str,
-    push_id: str,
-    http_tests: list[HTTPTest],
-    browser_tests: list[BrowserTest],
-) -> dict[str, list[str]]:
-    """Verify the latest pushed changes are running correctly.
-    Provide a list of HTTP tests and browser tests to run.
-    You should have at least one test total, but can have both.
-
-    Requires a .bifrost.json file in the app root.
-
-    Args:
-        app_id: The ID of the application to deploy. This must be read from the .bifrost.json file in the app root.
-        deployment_id: The id of the deployment environment to verify.
-        push_id: The ID of the push to verify.
-        http_tests: A list of HTTP tests to run.
-        browser_tests: A list of browser tests to run.
-    """
-    manager: ClientManager = ctx.request_context.lifespan_context.client_manager
-    verify_request = VerifyRequest(tests=[*http_tests, *browser_tests])
-    try:
-        client = await manager.get(app_id, deployment_id)
-        return await client.verify(push_id, verify_request)
-    except Exception as e:
-        log.error(f"Error verifying deployment: {e}, type: {type(e)}")
-        raise
+def main():
+    mcp.run()
 
 
 if __name__ == "__main__":
-    mcp.run()
+    main()

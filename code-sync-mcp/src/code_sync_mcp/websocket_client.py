@@ -9,12 +9,6 @@ import httpx
 import websockets
 
 from code_sync_mcp.push_handler import PushHandler, PushFuture, PushResult
-from code_sync_mcp.verify_handler import (
-    VerifyHandler,
-    VerifyFuture,
-    VerifyResult,
-    VerifyRequest,
-)
 
 log = logging.getLogger(__name__)
 
@@ -56,7 +50,6 @@ class WebsocketClient:
         )
 
         self._push_handler = PushHandler()
-        self._verify_handler = VerifyHandler()
 
         # Connection state
         self._connection_timeout = (
@@ -288,24 +281,6 @@ class WebsocketClient:
                 self._current_request_future = None
                 raise
 
-    async def verify(self, sync_id: str, verify_request: VerifyRequest) -> VerifyResult:
-        """Requests a verify operation and waits for it to complete or fail."""
-        async with self._with_api_lock():
-            verify_future = VerifyFuture(sync_id, verify_request)
-            self._current_request_future = verify_future
-            log.info(f"Triggering verify (Future ID: {id(verify_future)})...")
-            self._request_available_event.set()
-
-            try:
-                result = await verify_future
-                log.info("Verify completed successfully")
-                self._current_request_future = None
-                return result
-            except Exception as e:
-                log.error(f"Verify failed: {e}")
-                self._current_request_future = None
-                raise
-
     async def close(self):
         log.info("Close requested for WebsocketClient.")
         self._close_requested.set()
@@ -353,11 +328,11 @@ class WebsocketClient:
         async with self._api_call_lock:
             if self._close_requested.is_set():
                 raise RuntimeError(
-                    "Cannot verify, WebsocketClient closed while waiting for lock."
+                    "Cannot run request, WebsocketClient closed while waiting for lock."
                 )
             if self._current_request_future is not None:
                 log.error(
-                    "New verify request initiated while another request is already in progress. This indicates a logic issue."
+                    "New request initiated while another request is already in progress. This indicates a logic issue."
                 )
                 raise RuntimeError("Another request is already in progress.")
 
@@ -374,10 +349,6 @@ class WebsocketClient:
             if isinstance(request_future, PushFuture):
                 await self._push_handler.handle_push_request(
                     websocket, self.app_root, request_future
-                )
-            elif isinstance(request_future, VerifyFuture):
-                await self._verify_handler.handle_verify_request(
-                    websocket, request_future
                 )
             else:
                 err_msg = f"Unknown request future type: {type(request_future)}"

@@ -76,124 +76,12 @@ func (PushResponse_PushStatus) EnumDescriptor() ([]byte, []int) {
 	return file_ws_proto_rawDescGZIP(), []int{1, 0}
 }
 
-type HttpTest_HttpMethod int32
-
-const (
-	HttpTest_UNKNOWN HttpTest_HttpMethod = 0
-	HttpTest_GET     HttpTest_HttpMethod = 1
-	HttpTest_POST    HttpTest_HttpMethod = 2
-	HttpTest_PUT     HttpTest_HttpMethod = 3
-	HttpTest_DELETE  HttpTest_HttpMethod = 4
-)
-
-// Enum value maps for HttpTest_HttpMethod.
-var (
-	HttpTest_HttpMethod_name = map[int32]string{
-		0: "UNKNOWN",
-		1: "GET",
-		2: "POST",
-		3: "PUT",
-		4: "DELETE",
-	}
-	HttpTest_HttpMethod_value = map[string]int32{
-		"UNKNOWN": 0,
-		"GET":     1,
-		"POST":    2,
-		"PUT":     3,
-		"DELETE":  4,
-	}
-)
-
-func (x HttpTest_HttpMethod) Enum() *HttpTest_HttpMethod {
-	p := new(HttpTest_HttpMethod)
-	*p = x
-	return p
-}
-
-func (x HttpTest_HttpMethod) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (HttpTest_HttpMethod) Descriptor() protoreflect.EnumDescriptor {
-	return file_ws_proto_enumTypes[1].Descriptor()
-}
-
-func (HttpTest_HttpMethod) Type() protoreflect.EnumType {
-	return &file_ws_proto_enumTypes[1]
-}
-
-func (x HttpTest_HttpMethod) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use HttpTest_HttpMethod.Descriptor instead.
-func (HttpTest_HttpMethod) EnumDescriptor() ([]byte, []int) {
-	return file_ws_proto_rawDescGZIP(), []int{2, 0}
-}
-
-type VerificationResponse_VerificationStatus int32
-
-const (
-	VerificationResponse_UNKNOWN     VerificationResponse_VerificationStatus = 0
-	VerificationResponse_PENDING     VerificationResponse_VerificationStatus = 1
-	VerificationResponse_IN_PROGRESS VerificationResponse_VerificationStatus = 2
-	VerificationResponse_FAILED      VerificationResponse_VerificationStatus = 3
-	VerificationResponse_COMPLETED   VerificationResponse_VerificationStatus = 4
-)
-
-// Enum value maps for VerificationResponse_VerificationStatus.
-var (
-	VerificationResponse_VerificationStatus_name = map[int32]string{
-		0: "UNKNOWN",
-		1: "PENDING",
-		2: "IN_PROGRESS",
-		3: "FAILED",
-		4: "COMPLETED",
-	}
-	VerificationResponse_VerificationStatus_value = map[string]int32{
-		"UNKNOWN":     0,
-		"PENDING":     1,
-		"IN_PROGRESS": 2,
-		"FAILED":      3,
-		"COMPLETED":   4,
-	}
-)
-
-func (x VerificationResponse_VerificationStatus) Enum() *VerificationResponse_VerificationStatus {
-	p := new(VerificationResponse_VerificationStatus)
-	*p = x
-	return p
-}
-
-func (x VerificationResponse_VerificationStatus) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (VerificationResponse_VerificationStatus) Descriptor() protoreflect.EnumDescriptor {
-	return file_ws_proto_enumTypes[2].Descriptor()
-}
-
-func (VerificationResponse_VerificationStatus) Type() protoreflect.EnumType {
-	return &file_ws_proto_enumTypes[2]
-}
-
-func (x VerificationResponse_VerificationStatus) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use VerificationResponse_VerificationStatus.Descriptor instead.
-func (VerificationResponse_VerificationStatus) EnumDescriptor() ([]byte, []int) {
-	return file_ws_proto_rawDescGZIP(), []int{6, 0}
-}
-
 type WebsocketMessage_MessageType int32
 
 const (
-	WebsocketMessage_UNKNOWN               WebsocketMessage_MessageType = 0
-	WebsocketMessage_PUSH_REQUEST          WebsocketMessage_MessageType = 1
-	WebsocketMessage_PUSH_RESPONSE         WebsocketMessage_MessageType = 2
-	WebsocketMessage_VERIFICATION_REQUEST  WebsocketMessage_MessageType = 3
-	WebsocketMessage_VERIFICATION_RESPONSE WebsocketMessage_MessageType = 4
+	WebsocketMessage_UNKNOWN       WebsocketMessage_MessageType = 0
+	WebsocketMessage_PUSH_REQUEST  WebsocketMessage_MessageType = 1
+	WebsocketMessage_PUSH_RESPONSE WebsocketMessage_MessageType = 2
 )
 
 // Enum value maps for WebsocketMessage_MessageType.
@@ -202,15 +90,11 @@ var (
 		0: "UNKNOWN",
 		1: "PUSH_REQUEST",
 		2: "PUSH_RESPONSE",
-		3: "VERIFICATION_REQUEST",
-		4: "VERIFICATION_RESPONSE",
 	}
 	WebsocketMessage_MessageType_value = map[string]int32{
-		"UNKNOWN":               0,
-		"PUSH_REQUEST":          1,
-		"PUSH_RESPONSE":         2,
-		"VERIFICATION_REQUEST":  3,
-		"VERIFICATION_RESPONSE": 4,
+		"UNKNOWN":       0,
+		"PUSH_REQUEST":  1,
+		"PUSH_RESPONSE": 2,
 	}
 )
 
@@ -225,11 +109,11 @@ func (x WebsocketMessage_MessageType) String() string {
 }
 
 func (WebsocketMessage_MessageType) Descriptor() protoreflect.EnumDescriptor {
-	return file_ws_proto_enumTypes[3].Descriptor()
+	return file_ws_proto_enumTypes[1].Descriptor()
 }
 
 func (WebsocketMessage_MessageType) Type() protoreflect.EnumType {
-	return &file_ws_proto_enumTypes[3]
+	return &file_ws_proto_enumTypes[1]
 }
 
 func (x WebsocketMessage_MessageType) Number() protoreflect.EnumNumber {
@@ -238,7 +122,7 @@ func (x WebsocketMessage_MessageType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use WebsocketMessage_MessageType.Descriptor instead.
 func (WebsocketMessage_MessageType) EnumDescriptor() ([]byte, []int) {
-	return file_ws_proto_rawDescGZIP(), []int{7, 0}
+	return file_ws_proto_rawDescGZIP(), []int{2, 0}
 }
 
 type PushMessage struct {
@@ -361,282 +245,6 @@ func (x *PushResponse) GetErrorMessage() string {
 	return ""
 }
 
-type HttpTest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Method        HttpTest_HttpMethod    `protobuf:"varint,1,opt,name=method,proto3,enum=HttpTest_HttpMethod" json:"method,omitempty"`
-	Path          string                 `protobuf:"bytes,2,opt,name=path,proto3" json:"path,omitempty"`
-	Body          *string                `protobuf:"bytes,3,opt,name=body,proto3,oneof" json:"body,omitempty"`
-	Headers       map[string]string      `protobuf:"bytes,4,rep,name=headers,proto3" json:"headers,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *HttpTest) Reset() {
-	*x = HttpTest{}
-	mi := &file_ws_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *HttpTest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*HttpTest) ProtoMessage() {}
-
-func (x *HttpTest) ProtoReflect() protoreflect.Message {
-	mi := &file_ws_proto_msgTypes[2]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use HttpTest.ProtoReflect.Descriptor instead.
-func (*HttpTest) Descriptor() ([]byte, []int) {
-	return file_ws_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *HttpTest) GetMethod() HttpTest_HttpMethod {
-	if x != nil {
-		return x.Method
-	}
-	return HttpTest_UNKNOWN
-}
-
-func (x *HttpTest) GetPath() string {
-	if x != nil {
-		return x.Path
-	}
-	return ""
-}
-
-func (x *HttpTest) GetBody() string {
-	if x != nil && x.Body != nil {
-		return *x.Body
-	}
-	return ""
-}
-
-func (x *HttpTest) GetHeaders() map[string]string {
-	if x != nil {
-		return x.Headers
-	}
-	return nil
-}
-
-type BrowserTest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	WorkflowSteps []string               `protobuf:"bytes,1,rep,name=workflow_steps,json=workflowSteps,proto3" json:"workflow_steps,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *BrowserTest) Reset() {
-	*x = BrowserTest{}
-	mi := &file_ws_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *BrowserTest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*BrowserTest) ProtoMessage() {}
-
-func (x *BrowserTest) ProtoReflect() protoreflect.Message {
-	mi := &file_ws_proto_msgTypes[3]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use BrowserTest.ProtoReflect.Descriptor instead.
-func (*BrowserTest) Descriptor() ([]byte, []int) {
-	return file_ws_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *BrowserTest) GetWorkflowSteps() []string {
-	if x != nil {
-		return x.WorkflowSteps
-	}
-	return nil
-}
-
-type TestConfig struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	HttpTests     []*HttpTest            `protobuf:"bytes,1,rep,name=http_tests,json=httpTests,proto3" json:"http_tests,omitempty"`
-	BrowserTests  []*BrowserTest         `protobuf:"bytes,2,rep,name=browser_tests,json=browserTests,proto3" json:"browser_tests,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *TestConfig) Reset() {
-	*x = TestConfig{}
-	mi := &file_ws_proto_msgTypes[4]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *TestConfig) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*TestConfig) ProtoMessage() {}
-
-func (x *TestConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_ws_proto_msgTypes[4]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use TestConfig.ProtoReflect.Descriptor instead.
-func (*TestConfig) Descriptor() ([]byte, []int) {
-	return file_ws_proto_rawDescGZIP(), []int{4}
-}
-
-func (x *TestConfig) GetHttpTests() []*HttpTest {
-	if x != nil {
-		return x.HttpTests
-	}
-	return nil
-}
-
-func (x *TestConfig) GetBrowserTests() []*BrowserTest {
-	if x != nil {
-		return x.BrowserTests
-	}
-	return nil
-}
-
-type VerificationRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	PushId        string                 `protobuf:"bytes,1,opt,name=push_id,json=pushId,proto3" json:"push_id,omitempty"`
-	Tests         *TestConfig            `protobuf:"bytes,2,opt,name=tests,proto3" json:"tests,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *VerificationRequest) Reset() {
-	*x = VerificationRequest{}
-	mi := &file_ws_proto_msgTypes[5]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *VerificationRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*VerificationRequest) ProtoMessage() {}
-
-func (x *VerificationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_ws_proto_msgTypes[5]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use VerificationRequest.ProtoReflect.Descriptor instead.
-func (*VerificationRequest) Descriptor() ([]byte, []int) {
-	return file_ws_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *VerificationRequest) GetPushId() string {
-	if x != nil {
-		return x.PushId
-	}
-	return ""
-}
-
-func (x *VerificationRequest) GetTests() *TestConfig {
-	if x != nil {
-		return x.Tests
-	}
-	return nil
-}
-
-type VerificationResponse struct {
-	state         protoimpl.MessageState                  `protogen:"open.v1"`
-	PushId        string                                  `protobuf:"bytes,1,opt,name=push_id,json=pushId,proto3" json:"push_id,omitempty"`
-	Status        VerificationResponse_VerificationStatus `protobuf:"varint,2,opt,name=status,proto3,enum=VerificationResponse_VerificationStatus" json:"status,omitempty"`
-	ErrorMessage  string                                  `protobuf:"bytes,3,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *VerificationResponse) Reset() {
-	*x = VerificationResponse{}
-	mi := &file_ws_proto_msgTypes[6]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *VerificationResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*VerificationResponse) ProtoMessage() {}
-
-func (x *VerificationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_ws_proto_msgTypes[6]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use VerificationResponse.ProtoReflect.Descriptor instead.
-func (*VerificationResponse) Descriptor() ([]byte, []int) {
-	return file_ws_proto_rawDescGZIP(), []int{6}
-}
-
-func (x *VerificationResponse) GetPushId() string {
-	if x != nil {
-		return x.PushId
-	}
-	return ""
-}
-
-func (x *VerificationResponse) GetStatus() VerificationResponse_VerificationStatus {
-	if x != nil {
-		return x.Status
-	}
-	return VerificationResponse_UNKNOWN
-}
-
-func (x *VerificationResponse) GetErrorMessage() string {
-	if x != nil {
-		return x.ErrorMessage
-	}
-	return ""
-}
-
 type WebsocketMessage struct {
 	state       protoimpl.MessageState       `protogen:"open.v1"`
 	MessageType WebsocketMessage_MessageType `protobuf:"varint,1,opt,name=message_type,json=messageType,proto3,enum=WebsocketMessage_MessageType" json:"message_type,omitempty"`
@@ -644,8 +252,6 @@ type WebsocketMessage struct {
 	//
 	//	*WebsocketMessage_PushMessage
 	//	*WebsocketMessage_PushResponse
-	//	*WebsocketMessage_VerificationRequest
-	//	*WebsocketMessage_VerificationResponse
 	Message       isWebsocketMessage_Message `protobuf_oneof:"message"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -653,7 +259,7 @@ type WebsocketMessage struct {
 
 func (x *WebsocketMessage) Reset() {
 	*x = WebsocketMessage{}
-	mi := &file_ws_proto_msgTypes[7]
+	mi := &file_ws_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -665,7 +271,7 @@ func (x *WebsocketMessage) String() string {
 func (*WebsocketMessage) ProtoMessage() {}
 
 func (x *WebsocketMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_ws_proto_msgTypes[7]
+	mi := &file_ws_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -678,7 +284,7 @@ func (x *WebsocketMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WebsocketMessage.ProtoReflect.Descriptor instead.
 func (*WebsocketMessage) Descriptor() ([]byte, []int) {
-	return file_ws_proto_rawDescGZIP(), []int{7}
+	return file_ws_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *WebsocketMessage) GetMessageType() WebsocketMessage_MessageType {
@@ -713,24 +319,6 @@ func (x *WebsocketMessage) GetPushResponse() *PushResponse {
 	return nil
 }
 
-func (x *WebsocketMessage) GetVerificationRequest() *VerificationRequest {
-	if x != nil {
-		if x, ok := x.Message.(*WebsocketMessage_VerificationRequest); ok {
-			return x.VerificationRequest
-		}
-	}
-	return nil
-}
-
-func (x *WebsocketMessage) GetVerificationResponse() *VerificationResponse {
-	if x != nil {
-		if x, ok := x.Message.(*WebsocketMessage_VerificationResponse); ok {
-			return x.VerificationResponse
-		}
-	}
-	return nil
-}
-
 type isWebsocketMessage_Message interface {
 	isWebsocketMessage_Message()
 }
@@ -743,21 +331,9 @@ type WebsocketMessage_PushResponse struct {
 	PushResponse *PushResponse `protobuf:"bytes,3,opt,name=push_response,json=pushResponse,proto3,oneof"`
 }
 
-type WebsocketMessage_VerificationRequest struct {
-	VerificationRequest *VerificationRequest `protobuf:"bytes,4,opt,name=verification_request,json=verificationRequest,proto3,oneof"`
-}
-
-type WebsocketMessage_VerificationResponse struct {
-	VerificationResponse *VerificationResponse `protobuf:"bytes,5,opt,name=verification_response,json=verificationResponse,proto3,oneof"`
-}
-
 func (*WebsocketMessage_PushMessage) isWebsocketMessage_Message() {}
 
 func (*WebsocketMessage_PushResponse) isWebsocketMessage_Message() {}
-
-func (*WebsocketMessage_VerificationRequest) isWebsocketMessage_Message() {}
-
-func (*WebsocketMessage_VerificationResponse) isWebsocketMessage_Message() {}
 
 var File_ws_proto protoreflect.FileDescriptor
 
@@ -780,57 +356,15 @@ const file_ws_proto_rawDesc = "" +
 	"\vIN_PROGRESS\x10\x02\x12\n" +
 	"\n" +
 	"\x06FAILED\x10\x03\x12\r\n" +
-	"\tCOMPLETED\x10\x04\"\x9f\x02\n" +
-	"\bHttpTest\x12,\n" +
-	"\x06method\x18\x01 \x01(\x0e2\x14.HttpTest.HttpMethodR\x06method\x12\x12\n" +
-	"\x04path\x18\x02 \x01(\tR\x04path\x12\x17\n" +
-	"\x04body\x18\x03 \x01(\tH\x00R\x04body\x88\x01\x01\x120\n" +
-	"\aheaders\x18\x04 \x03(\v2\x16.HttpTest.HeadersEntryR\aheaders\x1a:\n" +
-	"\fHeadersEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"A\n" +
-	"\n" +
-	"HttpMethod\x12\v\n" +
-	"\aUNKNOWN\x10\x00\x12\a\n" +
-	"\x03GET\x10\x01\x12\b\n" +
-	"\x04POST\x10\x02\x12\a\n" +
-	"\x03PUT\x10\x03\x12\n" +
-	"\n" +
-	"\x06DELETE\x10\x04B\a\n" +
-	"\x05_body\"4\n" +
-	"\vBrowserTest\x12%\n" +
-	"\x0eworkflow_steps\x18\x01 \x03(\tR\rworkflowSteps\"i\n" +
-	"\n" +
-	"TestConfig\x12(\n" +
-	"\n" +
-	"http_tests\x18\x01 \x03(\v2\t.HttpTestR\thttpTests\x121\n" +
-	"\rbrowser_tests\x18\x02 \x03(\v2\f.BrowserTestR\fbrowserTests\"Q\n" +
-	"\x13VerificationRequest\x12\x17\n" +
-	"\apush_id\x18\x01 \x01(\tR\x06pushId\x12!\n" +
-	"\x05tests\x18\x02 \x01(\v2\v.TestConfigR\x05tests\"\xf2\x01\n" +
-	"\x14VerificationResponse\x12\x17\n" +
-	"\apush_id\x18\x01 \x01(\tR\x06pushId\x12@\n" +
-	"\x06status\x18\x02 \x01(\x0e2(.VerificationResponse.VerificationStatusR\x06status\x12#\n" +
-	"\rerror_message\x18\x03 \x01(\tR\ferrorMessage\"Z\n" +
-	"\x12VerificationStatus\x12\v\n" +
-	"\aUNKNOWN\x10\x00\x12\v\n" +
-	"\aPENDING\x10\x01\x12\x0f\n" +
-	"\vIN_PROGRESS\x10\x02\x12\n" +
-	"\n" +
-	"\x06FAILED\x10\x03\x12\r\n" +
-	"\tCOMPLETED\x10\x04\"\xd7\x03\n" +
+	"\tCOMPLETED\x10\x04\"\x89\x02\n" +
 	"\x10WebsocketMessage\x12@\n" +
 	"\fmessage_type\x18\x01 \x01(\x0e2\x1d.WebsocketMessage.MessageTypeR\vmessageType\x121\n" +
 	"\fpush_message\x18\x02 \x01(\v2\f.PushMessageH\x00R\vpushMessage\x124\n" +
-	"\rpush_response\x18\x03 \x01(\v2\r.PushResponseH\x00R\fpushResponse\x12I\n" +
-	"\x14verification_request\x18\x04 \x01(\v2\x14.VerificationRequestH\x00R\x13verificationRequest\x12L\n" +
-	"\x15verification_response\x18\x05 \x01(\v2\x15.VerificationResponseH\x00R\x14verificationResponse\"t\n" +
+	"\rpush_response\x18\x03 \x01(\v2\r.PushResponseH\x00R\fpushResponse\"?\n" +
 	"\vMessageType\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12\x10\n" +
 	"\fPUSH_REQUEST\x10\x01\x12\x11\n" +
-	"\rPUSH_RESPONSE\x10\x02\x12\x18\n" +
-	"\x14VERIFICATION_REQUEST\x10\x03\x12\x19\n" +
-	"\x15VERIFICATION_RESPONSE\x10\x04B\t\n" +
+	"\rPUSH_RESPONSE\x10\x02B\t\n" +
 	"\amessageB,Z*github.com/bifrostinc/code-sync-sidecar/pbb\x06proto3"
 
 var (
@@ -845,41 +379,25 @@ func file_ws_proto_rawDescGZIP() []byte {
 	return file_ws_proto_rawDescData
 }
 
-var file_ws_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
-var file_ws_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_ws_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_ws_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_ws_proto_goTypes = []any{
-	(PushResponse_PushStatus)(0),                 // 0: PushResponse.PushStatus
-	(HttpTest_HttpMethod)(0),                     // 1: HttpTest.HttpMethod
-	(VerificationResponse_VerificationStatus)(0), // 2: VerificationResponse.VerificationStatus
-	(WebsocketMessage_MessageType)(0),            // 3: WebsocketMessage.MessageType
-	(*PushMessage)(nil),                          // 4: PushMessage
-	(*PushResponse)(nil),                         // 5: PushResponse
-	(*HttpTest)(nil),                             // 6: HttpTest
-	(*BrowserTest)(nil),                          // 7: BrowserTest
-	(*TestConfig)(nil),                           // 8: TestConfig
-	(*VerificationRequest)(nil),                  // 9: VerificationRequest
-	(*VerificationResponse)(nil),                 // 10: VerificationResponse
-	(*WebsocketMessage)(nil),                     // 11: WebsocketMessage
-	nil,                                          // 12: HttpTest.HeadersEntry
+	(PushResponse_PushStatus)(0),      // 0: PushResponse.PushStatus
+	(WebsocketMessage_MessageType)(0), // 1: WebsocketMessage.MessageType
+	(*PushMessage)(nil),               // 2: PushMessage
+	(*PushResponse)(nil),              // 3: PushResponse
+	(*WebsocketMessage)(nil),          // 4: WebsocketMessage
 }
 var file_ws_proto_depIdxs = []int32{
-	0,  // 0: PushResponse.status:type_name -> PushResponse.PushStatus
-	1,  // 1: HttpTest.method:type_name -> HttpTest.HttpMethod
-	12, // 2: HttpTest.headers:type_name -> HttpTest.HeadersEntry
-	6,  // 3: TestConfig.http_tests:type_name -> HttpTest
-	7,  // 4: TestConfig.browser_tests:type_name -> BrowserTest
-	8,  // 5: VerificationRequest.tests:type_name -> TestConfig
-	2,  // 6: VerificationResponse.status:type_name -> VerificationResponse.VerificationStatus
-	3,  // 7: WebsocketMessage.message_type:type_name -> WebsocketMessage.MessageType
-	4,  // 8: WebsocketMessage.push_message:type_name -> PushMessage
-	5,  // 9: WebsocketMessage.push_response:type_name -> PushResponse
-	9,  // 10: WebsocketMessage.verification_request:type_name -> VerificationRequest
-	10, // 11: WebsocketMessage.verification_response:type_name -> VerificationResponse
-	12, // [12:12] is the sub-list for method output_type
-	12, // [12:12] is the sub-list for method input_type
-	12, // [12:12] is the sub-list for extension type_name
-	12, // [12:12] is the sub-list for extension extendee
-	0,  // [0:12] is the sub-list for field type_name
+	0, // 0: PushResponse.status:type_name -> PushResponse.PushStatus
+	1, // 1: WebsocketMessage.message_type:type_name -> WebsocketMessage.MessageType
+	2, // 2: WebsocketMessage.push_message:type_name -> PushMessage
+	3, // 3: WebsocketMessage.push_response:type_name -> PushResponse
+	4, // [4:4] is the sub-list for method output_type
+	4, // [4:4] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_ws_proto_init() }
@@ -887,20 +405,17 @@ func file_ws_proto_init() {
 	if File_ws_proto != nil {
 		return
 	}
-	file_ws_proto_msgTypes[2].OneofWrappers = []any{}
-	file_ws_proto_msgTypes[7].OneofWrappers = []any{
+	file_ws_proto_msgTypes[2].OneofWrappers = []any{
 		(*WebsocketMessage_PushMessage)(nil),
 		(*WebsocketMessage_PushResponse)(nil),
-		(*WebsocketMessage_VerificationRequest)(nil),
-		(*WebsocketMessage_VerificationResponse)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_ws_proto_rawDesc), len(file_ws_proto_rawDesc)),
-			NumEnums:      4,
-			NumMessages:   9,
+			NumEnums:      2,
+			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

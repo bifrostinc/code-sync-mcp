@@ -2,7 +2,6 @@ import logging
 from typing import Optional, Dict, Protocol
 
 from fastapi import WebSocket, WebSocketDisconnect
-from google.protobuf import json_format
 
 from code_sync_proxy.pb import ws_pb2
 from code_sync_proxy.config import settings
@@ -16,7 +15,6 @@ from code_sync_proxy.ws.message import MessageFactory
 from code_sync_proxy.ws.interfaces import (
     PushRepository,
     DeploymentVerifier,
-    VerificationRunner,
 )
 
 log = logging.getLogger(__name__)
@@ -33,7 +31,6 @@ class MessageHandler(Protocol):
 
 # Message type enums for cleaner reference
 PushStatusPb = ws_pb2.PushResponse.PushStatus
-VerificationStatusPb = ws_pb2.VerificationResponse.VerificationStatus
 
 
 async def send_websocket_message(
@@ -53,7 +50,7 @@ async def recv_websocket_message(websocket: WebSocket) -> ws_pb2.WebsocketMessag
 
 
 class BaseWebSocketManager:
-    """Base WebSocket manager class with pluggable components for deployment verification and push storage."""
+    """Base WebSocket manager class with pluggable components for deployment."""
 
     _local_registry: ConnectionRegistry = ConnectionRegistry()
 
@@ -61,12 +58,10 @@ class BaseWebSocketManager:
         self,
         deployment_verifier: DeploymentVerifier,
         push_repository: PushRepository,
-        verification_runner: VerificationRunner,
         connection_store: Optional[ConnectionStore] = None,
     ):
         self.deployment_verifier = deployment_verifier
         self.push_repo = push_repository
-        self.verification_runner = verification_runner
 
         # Connection state
         self.registry = self._local_registry
@@ -78,7 +73,6 @@ class BaseWebSocketManager:
         ] = {
             ws_pb2.WebsocketMessage.MessageType.PUSH_REQUEST: self._handle_push_request,
             ws_pb2.WebsocketMessage.MessageType.PUSH_RESPONSE: self._handle_push_response,
-            ws_pb2.WebsocketMessage.MessageType.VERIFICATION_REQUEST: self._handle_verification_request,
         }
 
     def _make_key(
@@ -464,66 +458,3 @@ class BaseWebSocketManager:
         # Forward the response
         await send_websocket_message(ide_ws, response)
         log.info("Forwarded push response to IDE", extra=key.log_fields())
-
-    async def _handle_verification_request(
-        self, key: ConnectionKey, request_ws_message: ws_pb2.WebsocketMessage
-    ) -> None:
-        """Handle a verification request from the IDE."""
-        log.info(
-            "Received verification request",
-            extra=key.log_fields(),
-        )
-        verification_request = request_ws_message.verification_request
-
-        # Get the IDE WebSocket
-        ide_ws = self.registry.get_connection(ConnectionType.IDE, key)
-        if ide_ws is None:
-            log.warning(
-                "IDE no longer connected locally when handling verification request."
-            )
-            return
-
-        # Prepare the test payload for the verification task
-        tests_payload = json_format.MessageToDict(
-            verification_request.tests,
-            preserving_proto_field_name=True,
-            use_integers_for_enums=False,
-        )
-
-        # Queue the verification task
-        try:
-            # Extract user_id from the connection key, might be None in standalone mode
-            user_id = key.user_id if key.user_id != "standalone" else None
-
-            # Run the verification using the pluggable runner
-            await self.verification_runner.run_verification(
-                user_id=user_id,
-                app_id=key.app_id,
-                deployment_id=key.deployment_id,
-                push_id=verification_request.push_id,
-                tests_payload=tests_payload,
-            )
-
-            log.info(
-                f"Enqueued verification for push_id {verification_request.push_id}",
-                extra={"push_id": verification_request.push_id, **key.log_fields()},
-            )
-
-            # Send "in progress" response
-            await send_websocket_message(
-                ide_ws,
-                MessageFactory.create_verification_in_progress(),
-            )
-        except Exception as e:
-            log.exception(
-                f"Failed to enqueue verification task: {e}",
-                extra={"push_id": verification_request.push_id, **key.log_fields()},
-            )
-
-            # Send error response
-            await send_websocket_message(
-                ide_ws,
-                MessageFactory.create_verification_error(
-                    "Internal server error during verification enqueue"
-                ),
-            )

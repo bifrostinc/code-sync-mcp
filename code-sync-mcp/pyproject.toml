@@ -1,0 +1,56 @@
+[project]
+name = "code-sync-mcp"
+version = "0.1.4"
+description = "Code Sync MCP Server"
+readme = "README.md"
+requires-python = ">=3.13"
+license = {text = "MIT"}  # or whatever license you choose
+authors = [
+    {name = "Conor Branagan", email = "conor@bifrost.inc"},
+]
+maintainers = [
+    {name = "Conor Branagan", email = "conor@bifrost.inc"},
+]
+keywords = ["mcp", "server", "code", "sync"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.13",
+]
+dependencies = [
+    "httpx>=0.24.0",
+    "mcp",
+    "pydantic>=2.0.0",
+    "websockets>=15.0.1",
+    "aiofiles>=24.1.0",
+    "protobuf>=6.31.0",
+]
+
+[project.scripts]
+code-sync-mcp = "code_sync_mcp.server:main"
+
+[project.urls]
+Homepage = "https://github.com/bifrostinc/code-sync-mcp"
+Repository = "https://github.com/bifrostinc/code-sync-mcp"
+Issues = "https://github.com/bifrostinc/code-sync-mcp/issues"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.5",
+    "pytest-asyncio>=0.26.0",
+    "ruff>=0.11.4",
+    "build>=1.0.0",
+    "twine>=5.0.0",
+]
+
+[tool.pytest.ini_options]
+asyncio_default_fixture_loop_scope = "function"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/code_sync_mcp"]

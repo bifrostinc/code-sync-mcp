@@ -1,4 +1,4 @@
-from typing import Protocol, Optional, Tuple, Dict, Any
+from typing import Protocol, Tuple, Dict, Any
 from abc import abstractmethod
 from enum import Enum
 
@@ -46,30 +46,5 @@ class DeploymentVerifier(Protocol):
             - is_valid: True if the deployment is valid, False otherwise.
             - error_message: A string containing an error message if is_valid is False.
             - log_fields: A dictionary containing fields to include in log messages.
-        """
-        ...
-
-
-class VerificationRunner(Protocol):
-    """Protocol for verification runners."""
-
-    @abstractmethod
-    async def run_verification(
-        self,
-        user_id: Optional[str],
-        app_id: str,
-        deployment_id: str,
-        push_id: str,
-        tests_payload: Dict[str, Any],
-    ) -> None:
-        """
-        Run a verification task.
-
-        Args:
-            user_id: The ID of the user initiating the verification, if available.
-            app_id: The ID of the app being verified.
-            deployment_id: The ID of the deployment being verified.
-            push_id: The ID of the push operation.
-            tests_payload: The test configuration payload.
         """
         ...

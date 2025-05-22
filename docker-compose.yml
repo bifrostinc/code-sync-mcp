@@ -47,7 +47,7 @@ services:
 
   code-sync-sidecar:
     platform: linux/amd64
-    image: conorbranagan/code-sync-sidecar
+    image: bifrostinc/code-sync-sidecar
     environment:
       - BIFROST_API_URL=http://code-sync-proxy:8000
       - BIFROST_API_KEY=${PROXY_API_KEY}

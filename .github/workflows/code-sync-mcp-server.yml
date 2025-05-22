@@ -24,7 +24,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          cd code-sync-mcp-server
+          cd code-sync-mcp
           uv venv
           source .venv/bin/activate
           uv pip install pytest pytest-asyncio
@@ -32,7 +32,7 @@ jobs:
 
       - name: Run tests
         run: |
-          cd code-sync-mcp-server
+          cd code-sync-mcp
           source .venv/bin/activate
           python -m pytest -v
 
@@ -41,5 +41,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: test-results
-          path: code-sync-mcp-server/pytest-results.xml
+          path: code-sync-mcp/pytest-results.xml
           if-no-files-found: ignore

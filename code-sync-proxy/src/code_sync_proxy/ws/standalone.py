@@ -1,7 +1,7 @@
 import logging
-from typing import Dict, Tuple, Any, Optional
+from typing import Dict, Tuple, Any
 
-from code_sync_proxy.ws.interfaces import PushRepository, DeploymentVerifier, VerificationRunner, PushStatus
+from code_sync_proxy.ws.interfaces import PushRepository, DeploymentVerifier, PushStatus
 from code_sync_proxy.config import settings
 
 log = logging.getLogger(__name__)
@@ -9,10 +9,10 @@ log = logging.getLogger(__name__)
 
 class InMemoryPushRepository(PushRepository):
     """A simple in-memory implementation of PushRepository for standalone mode."""
-    
+
     def __init__(self):
         self.pushes = {}
-        
+
     def create(
         self,
         id: str,
@@ -32,7 +32,7 @@ class InMemoryPushRepository(PushRepository):
         self.pushes[id] = push
         log.info(f"Created push record {id} with status {status}")
         return push
-        
+
     def update(self, push_id: str, status: PushStatus) -> None:
         """Update the status of a push operation."""
         if push_id in self.pushes:
@@ -44,7 +44,7 @@ class InMemoryPushRepository(PushRepository):
 
 class AlwaysTrueDeploymentVerifier(DeploymentVerifier):
     """A simple implementation that always confirms deployments as valid."""
-    
+
     def verify_deployment(
         self,
         app_id: str,
@@ -52,7 +52,7 @@ class AlwaysTrueDeploymentVerifier(DeploymentVerifier):
     ) -> Tuple[bool, str, Dict[str, str]]:
         """
         Always returns valid=True for any deployment.
-        
+
         Returns:
             (True, "", log_fields): Indicating the deployment is valid.
         """
@@ -63,26 +63,3 @@ class AlwaysTrueDeploymentVerifier(DeploymentVerifier):
             "worker_id": settings.worker_id,
         }
         return True, "", log_fields
-
-
-class NoOpVerificationRunner(VerificationRunner):
-    """A verification runner that logs but doesn't actually run any tests."""
-    
-    async def run_verification(
-        self,
-        user_id: Optional[str],
-        app_id: str,
-        deployment_id: str,
-        push_id: str,
-        tests_payload: Dict[str, Any],
-    ) -> None:
-        """
-        Log verification request details but don't run any tests.
-        This is used in standalone mode where verification isn't supported.
-        """
-        log.info(
-            f"Verification request received but not processed in standalone mode: "
-            f"app_id={app_id}, deployment_id={deployment_id}, push_id={push_id}"
-        )
-        log.debug(f"Test payload: {tests_payload}")
-        log.info("In standalone mode, verifications are logged but not executed.")

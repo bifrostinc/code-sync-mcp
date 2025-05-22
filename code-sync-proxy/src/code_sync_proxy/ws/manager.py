@@ -5,7 +5,6 @@ from code_sync_proxy.ws.base_manager import BaseWebSocketManager
 from code_sync_proxy.ws.standalone import (
     InMemoryPushRepository,
     AlwaysTrueDeploymentVerifier,
-    NoOpVerificationRunner,
 )
 from code_sync_proxy.ws.connection_store import ConnectionStore, create_connection_store
 
@@ -22,7 +21,6 @@ class WebSocketManager(BaseWebSocketManager):
         super().__init__(
             deployment_verifier=AlwaysTrueDeploymentVerifier(),
             push_repository=InMemoryPushRepository(),
-            verification_runner=NoOpVerificationRunner(),
             connection_store=connection_store or local_connection_store,
         )
 
