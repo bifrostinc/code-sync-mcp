@@ -21,46 +21,33 @@ async def main():
     # Create the main parser
     parser = argparse.ArgumentParser(description="Bifrost Rsync Client")
     parser.add_argument("-f", "--bifrost-file-path", type=str, required=True)
-    parser.add_argument("-e", "--env", choices=["dev", "prod"], required=True)
     args = parser.parse_args()
 
     with open(args.bifrost_file_path, "r") as f:
         bifrost_file = json.load(f)
 
-    if args.env == "dev":
-        # Hardcoded for now from local dev setup.
-        api_key = "2c8edbd2-c2be-41c8-a1e9-f5c222a9845b"
-        api_url = "http://localhost:8000"
-        ws_api_url = "ws://localhost:8000"
-    else:
-        api_key = os.getenv("BIFROST_API_KEY")
-        if not api_key:
-            raise ValueError(
-                "BIFROST_API_KEY must be set for the production environment"
-            )
-        api_url = os.getenv(
-            "BIFROST_API_URL",
-            "http://bifrost-backend-alb-610931638.us-east-1.elb.amazonaws.com",
-        )
-        ws_api_url = os.getenv(
-            "BIFROST_WS_API_URL",
-            "ws://bifrost-backend-alb-610931638.us-east-1.elb.amazonaws.com",
-        )
+    api_url = os.getenv("BIFROST_API_URL", "http://localhost:8000")
+    ws_api_url = os.getenv("BIFROST_WS_API_URL", "ws://localhost:8000")
 
     stdio_params = StdioServerParameters(
         command="uv",
         args=["run", "server.py"],
         env={
-            "BIFROST_API_KEY": api_key,
+            "BIFROST_API_KEY": os.getenv("PROXY_API_KEY"),
             "BIFROST_API_URL": api_url,
             "BIFROST_WS_API_URL": ws_api_url,
         },
     )
 
+    # If app_root is not set use the path to the bifrost_file_path
+    app_root = bifrost_file.get("app_root", None)
+    if app_root is None:
+        app_root = os.path.dirname(args.bifrost_file_path)
+
     shared_args = {
         "app_id": bifrost_file["app_id"],
         "deployment_id": bifrost_file["deployment_id"],
-        "app_root": bifrost_file["app_root"],
+        "app_root": app_root,
         "code_diff": "initial",
         "change_description": "initial",
     }
@@ -69,7 +56,7 @@ async def main():
         async with ClientSession(read, write) as session:
             await session.initialize()
             parser = argparse.ArgumentParser(
-                description="Bifrost Rsync Client", exit_on_error=False
+                description="code-sync mcp client", exit_on_error=False
             )
             result = await session.list_tools()
             subparsers = parser.add_subparsers(

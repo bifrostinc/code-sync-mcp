@@ -8,7 +8,6 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
-	"strings"
 	"syscall"
 
 	"go.uber.org/zap"
@@ -31,8 +30,6 @@ func main() {
 	if filesDir == "" {
 		filesDir = DefaultFilesDir
 	}
-	skipCopyBinariesStr := strings.ToLower(os.Getenv("BIFROST_SKIP_COPY_BINARIES"))
-	skipCopyBinaries := skipCopyBinariesStr == "true" || skipCopyBinariesStr == "1"
 
 	if appID == "" {
 		stdLogger.Fatal("BIFROST_APP_ID environment variable is required")
@@ -62,31 +59,26 @@ func main() {
 	log.Info("Starting code-sync-sidecar",
 		zap.String("filesDir", filesDir),
 		zap.String("apiURL", apiURL),
-		zap.Bool("skipCopyBinaries", skipCopyBinaries),
 	)
 
-	// Create the sidecar and launcher directories with 777 permissions
-	if !skipCopyBinaries {
-		if err := os.MkdirAll(getSidecarDir(filesDir), 0777); err != nil {
-			log.Fatal("Failed to create sidecar directory", zap.Error(err), zap.String("path", getSidecarDir(filesDir)))
-		}
-		if err := os.MkdirAll(getLauncherDir(filesDir), 0777); err != nil {
-			log.Fatal("Failed to create launcher directory", zap.Error(err), zap.String("path", getLauncherDir(filesDir)))
-		}
-		if err := os.Chmod(getSidecarDir(filesDir), 0777); err != nil {
-			log.Warn("Failed to change sidecar directory permissions", zap.Error(err), zap.String("path", getSidecarDir(filesDir)))
-		}
-		if err := os.Chmod(getLauncherDir(filesDir), 0777); err != nil {
-			log.Warn("Failed to change launcher directory permissions", zap.Error(err), zap.String("path", getLauncherDir(filesDir)))
-		}
+	// Create the sidecar and launcher directories with very open permissions so can be accessed by the app and sidecar.
+	if err := os.MkdirAll(getSidecarDir(filesDir), 0777); err != nil {
+		log.Fatal("Failed to create sidecar directory", zap.Error(err), zap.String("path", getSidecarDir(filesDir)))
+	}
+	if err := os.MkdirAll(getLauncherDir(filesDir), 0777); err != nil {
+		log.Fatal("Failed to create launcher directory", zap.Error(err), zap.String("path", getLauncherDir(filesDir)))
+	}
+	if err := os.Chmod(getSidecarDir(filesDir), 0777); err != nil {
+		log.Warn("Failed to change sidecar directory permissions", zap.Error(err), zap.String("path", getSidecarDir(filesDir)))
+	}
+	if err := os.Chmod(getLauncherDir(filesDir), 0777); err != nil {
+		log.Warn("Failed to change launcher directory permissions", zap.Error(err), zap.String("path", getLauncherDir(filesDir)))
+	}
 
-		log.Info("Created sidecar and launcher directories")
-		// Copy the binaries from the /app/bin directory to the /app-files/.bifrost directory
-		if err := copyBinaries(filesDir); err != nil { // Remove logger argument
-			log.Fatal("Failed to copy binaries", zap.Error(err))
-		}
-	} else {
-		log.Info("Skipping binary copy due to BIFROST_SKIP_COPY_BINARIES flag")
+	log.Info("Created sidecar and launcher directories")
+	// Copy the binaries from the /app/bin directory to the /app-files/.bifrost directory
+	if err := copyBinaries(filesDir); err != nil { // Remove logger argument
+		log.Fatal("Failed to copy binaries", zap.Error(err))
 	}
 
 	// Create a context that will be canceled on SIGTERM/SIGINT

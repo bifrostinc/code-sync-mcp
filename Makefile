@@ -86,9 +86,6 @@ sidecar-push-docker: build-rsync-static setup-buildx
 	docker buildx build --no-cache -f code-sync-sidecar/Dockerfile --platform $(SUPPORTED_PLATFORMS) -t $(IMG) --push .
 	@echo "Sidecar image successfully pushed to $(IMG)"
 
-sidecar-deploy: sidecar-push-ecr # sidecar-push-docker seems like an alternative, not a sequence for one deploy
-	@echo "Deploying sidecar image to ECR..." # This target seems incomplete, no ECS update shown
-
 
 #
 # Proto commands
