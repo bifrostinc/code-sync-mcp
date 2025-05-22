@@ -1,12 +1,12 @@
 [project]
-name = "bifrost_mcp"
+name = "code_sync_mcp"
 version = "0.1.0"
-description = "Bifrost MCP Server"
+description = "Code Sync MCP Server"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "httpx>=0.24.0",
-    "mcp @ git+https://github.com/ylassoued/python-sdk.git@ylassoued/feat-request",
+    "mcp",
     "pydantic>=2.0.0",
     "gitpython>=3.1.40",
     "websockets>=15.0.1",

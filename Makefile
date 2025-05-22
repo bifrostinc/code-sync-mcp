@@ -9,8 +9,6 @@ BUILDX_BUILDER := multi-arch-builder
 help:
 	@echo "Available commands:"
 	@echo "  sidecar-docker           - Build and push sidecar image to Docker"
-	@echo "  build-rsync-static-amd64 - Build static rsync binaries for amd64"
-	@echo "  build-rsync-static-arm64 - Build static rsync binaries for arm64"	
 	@echo "  build-rsync-static       - Build static rsync binaries for amd64 and arm64"
 
 setup-buildx:
@@ -22,8 +20,6 @@ setup-buildx:
 		docker buildx use $(BUILDX_BUILDER); \
 	fi
 
-
-# Build Rsync static using Dockerfile
 build-rsync-static-amd64:
 	mkdir -p $(BINARIES_DIR)
 	@echo "Checking if rsync binaries already exist..."
@@ -51,7 +47,6 @@ build-rsync-static-arm64:
 	  echo "Build complete. Binaries are in ./$(OUTPUT_DIR)/"; \
 	fi
 
-# Build Rsync static using Dockerfile
 build-rsync-static: build-rsync-static-amd64 build-rsync-static-arm64
 	@echo "All static Rsync binaries built successfully in $(BINARIES_DIR)"
 

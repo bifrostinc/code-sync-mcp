@@ -2,13 +2,14 @@ import asyncio
 import logging
 import os
 from asyncio import Future, Lock
-from typing import Optional, Dict, Any
-import websockets
-import httpx
+from typing import Optional
 from contextlib import asynccontextmanager
 
-from bifrost_mcp.push_handler import PushHandler, PushFuture, PushResult
-from bifrost_mcp.verify_handler import (
+import httpx
+import websockets
+
+from code_sync_mcp.push_handler import PushHandler, PushFuture, PushResult
+from code_sync_mcp.verify_handler import (
     VerifyHandler,
     VerifyFuture,
     VerifyResult,
@@ -44,19 +45,16 @@ class WebsocketClient:
         self._api_key = os.getenv("BIFROST_API_KEY")
         if not self._api_key:
             raise ValueError("BIFROST_API_KEY is not set")
-            
-        # Determine if we're connecting to a standalone proxy or backend
-        self._is_standalone = os.getenv("BIFROST_STANDALONE", "").lower() in ("true", "1", "t", "yes", "y")
-        
+
         # Set appropriate URLs based on standalone mode
         self._base_url = os.getenv("BIFROST_API_URL", "http://localhost:8000")
         self._ws_base_url = os.getenv("BIFROST_WS_API_URL", "ws://localhost:8000")
-        
+
         # Log the mode we're running in
-        log.info(f"WebsocketClient initialized in {'standalone' if self._is_standalone else 'backend'} mode")
-        log.info(f"Using base URL: {self._base_url}")
-        log.info(f"Using WebSocket URL: {self._ws_base_url}")
-        
+        log.info(
+            f"WebsocketClient initialized, base_url={self._base_url}, ws_base_url={self._ws_base_url}"
+        )
+
         self._push_handler = PushHandler()
         self._verify_handler = VerifyHandler()
 
@@ -83,8 +81,10 @@ class WebsocketClient:
 
     def _get_readiness_uri(self) -> str:
         """Gets the appropriate readiness check URI based on mode."""
-        return f"{self._base_url}/api/v1/push/ide/{self.app_id}/{self.deployment_id}/ready"
-    
+        return (
+            f"{self._base_url}/api/v1/push/ide/{self.app_id}/{self.deployment_id}/ready"
+        )
+
     def _get_websocket_uri(self) -> str:
         """Gets the appropriate WebSocket URI based on mode."""
         return f"{self._ws_base_url}/api/v1/push/ide/{self.app_id}/{self.deployment_id}"
@@ -93,8 +93,8 @@ class WebsocketClient:
         """Checks if the backend considers this client's deployment environment ready."""
         headers = {"X-API-Key": self._api_key}
         uri = self._get_readiness_uri()
-        log.info(f"Checking if Bifrost {'proxy' if self._is_standalone else 'backend'} is ready: {uri}")
-        
+        log.info(f"Checking if code-sync proxy is ready: {uri}")
+
         try:
             async with httpx.AsyncClient() as client:
                 response = await client.get(uri, headers=headers, timeout=0.5)
@@ -128,7 +128,7 @@ class WebsocketClient:
             self._connected.set()
             raise RuntimeError("Timed out waiting for connection to be established")
         except Exception as e:
-            raise RuntimeError(f"Error connecting to Bifrost {'proxy' if self._is_standalone else 'backend'}: {e}") from e
+            raise RuntimeError(f"Error connecting to code-sync proxy: {e}") from e
 
     async def _connect(self):
         """Main function for the IDE client connection and request handling."""
@@ -138,7 +138,7 @@ class WebsocketClient:
             if is_ready:
                 break
             log.info(
-                f"{'Proxy' if self._is_standalone else 'Backend'} not ready, waiting {READINESS_CHECK_INTERVAL_SECONDS} seconds and checking again"
+                f"Code-sync proxy not ready, waiting {READINESS_CHECK_INTERVAL_SECONDS} seconds and checking again"
             )
             await asyncio.sleep(READINESS_CHECK_INTERVAL_SECONDS)
 
@@ -158,7 +158,7 @@ class WebsocketClient:
                     uri, additional_headers=headers
                 ) as websocket:
                     self._websocket = websocket
-                    log.info(f"Connected to Bifrost {'proxy' if self._is_standalone else 'backend'}.")
+                    log.info("Connected to code-sync proxy")
                     self._connected.set()
                     # Create tasks for waiting on request or close
                     self._request_waiter = asyncio.create_task(
