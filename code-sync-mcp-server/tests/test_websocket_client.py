@@ -6,15 +6,15 @@ import pytest
 import pytest_asyncio
 import websockets
 
-from bifrost_mcp.websocket_client import (
+from code_sync_mcp.websocket_client import (
     WebsocketClient,
     PushFuture,
     PushResult,
     RequestRequiresReconnectError,
 )
-from bifrost_mcp.client_manager import ClientManager
-from bifrost_mcp.pb import ws_pb2
-from bifrost_mcp.push_handler import PushHandler
+from code_sync_mcp.client_manager import ClientManager
+from code_sync_mcp.pb import ws_pb2
+from code_sync_mcp.push_handler import PushHandler
 
 PushStatusPb = ws_pb2.PushResponse.PushStatus
 
@@ -106,8 +106,8 @@ async def test_client():
     deployment_id = "client_test_deployment_id"
 
     # Mock RsyncHandler for all tests using this client fixture
-    with patch("bifrost_mcp.websocket_client.PushHandler") as MockPushHandler, patch(
-        "bifrost_mcp.websocket_client.websockets.connect"
+    with patch("code_sync_mcp.websocket_client.PushHandler") as MockPushHandler, patch(
+        "code_sync_mcp.websocket_client.websockets.connect"
     ) as mock_ws_connect:
 
         mock_push_handler_instance = PushHandler()
@@ -177,7 +177,7 @@ async def test_client_connect_success(test_client: WebsocketClient):
 
 
 @pytest.mark.asyncio
-@patch("bifrost_mcp.websocket_client.websockets.connect")
+@patch("code_sync_mcp.websocket_client.websockets.connect")
 async def test_client_connect_retry(mock_connect):
     """Test that the client retries connection after failure."""
     app_id = "test_app_id"
@@ -230,7 +230,7 @@ async def test_client_connect_retry(mock_connect):
 
 
 @pytest.mark.asyncio
-@patch("bifrost_mcp.websocket_client.websockets.connect")
+@patch("code_sync_mcp.websocket_client.websockets.connect")
 async def test_client_connect_readiness_failure(mock_ws_connect):
     """Test that the client fails to connect if readiness checks consistently fail."""
     app_id = "readiness_fail_app"

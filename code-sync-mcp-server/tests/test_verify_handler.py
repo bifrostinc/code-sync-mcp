@@ -3,14 +3,14 @@ import pytest_asyncio
 from unittest.mock import AsyncMock, patch
 import websockets
 
-from bifrost_mcp.verify_handler import (
+from code_sync_mcp.verify_handler import (
     VerifyHandler,
     VerifyFuture,
     VerifyRequest,
     HTTPTest,
     BrowserTest,
 )
-from bifrost_mcp.pb import ws_pb2
+from code_sync_mcp.pb import ws_pb2
 
 VerificationStatusPb = ws_pb2.VerificationResponse.VerificationStatus
 
@@ -227,7 +227,7 @@ async def test_handle_verify_request_future_already_done(
     sample_verify_future.set_result(None)  # Mark future as done
 
     # Patch log.warning to check if it's called
-    with patch("bifrost_mcp.verify_handler.log.warning") as mock_log_warning:
+    with patch("code_sync_mcp.verify_handler.log.warning") as mock_log_warning:
         await verify_handler.handle_verify_request(mock_websocket, sample_verify_future)
 
     mock_websocket.send.assert_not_awaited()

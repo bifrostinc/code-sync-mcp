@@ -94,6 +94,9 @@ class WebsocketClient:
         headers = {"X-API-Key": self._api_key}
         uri = self._get_readiness_uri()
         log.info(f"Checking if code-sync proxy is ready: {uri}")
+        import pdb
+
+        pdb.set_trace()
 
         try:
             async with httpx.AsyncClient() as client:

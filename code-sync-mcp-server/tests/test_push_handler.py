@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 import pytest_asyncio
 
-from bifrost_mcp.push_handler import (
+from code_sync_mcp.push_handler import (
     PushHandler,
     RSYNC_PATH as HANDLER_RSYNC_PATH,
 )

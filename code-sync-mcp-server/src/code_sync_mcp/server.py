@@ -9,8 +9,8 @@ from typing import AsyncIterator
 
 from mcp.server.fastmcp import FastMCP, Context
 
-from bifrost_mcp.client_manager import ClientManager
-from bifrost_mcp.verify_handler import HTTPTest, BrowserTest, VerifyRequest
+from code_sync_mcp.client_manager import ClientManager
+from code_sync_mcp.verify_handler import HTTPTest, BrowserTest, VerifyRequest
 
 log = logging.getLogger(__name__)
 

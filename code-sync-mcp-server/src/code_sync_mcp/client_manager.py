@@ -2,7 +2,7 @@ import logging
 import asyncio
 from typing import Optional
 
-from bifrost_mcp.websocket_client import WebsocketClient
+from code_sync_mcp.websocket_client import WebsocketClient
 
 log = logging.getLogger(__name__)
 

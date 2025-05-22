@@ -11,7 +11,7 @@ import websockets
 from dataclasses import dataclass
 from asyncio import Future
 
-from bifrost_mcp.pb import ws_pb2
+from code_sync_mcp.pb import ws_pb2
 
 log = logging.getLogger(__name__)
 
