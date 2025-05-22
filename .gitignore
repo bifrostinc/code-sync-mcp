@@ -1,2 +1,17 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+.env
+.ruff_cache
+.mypy_cache
+.DS_Store
+
 code-sync-sidecar/binaries/git*
 code-sync-sidecar/binaries/rsync*
