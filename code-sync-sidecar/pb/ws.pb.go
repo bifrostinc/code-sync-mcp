@@ -365,7 +365,7 @@ const file_ws_proto_rawDesc = "" +
 	"\aUNKNOWN\x10\x00\x12\x10\n" +
 	"\fPUSH_REQUEST\x10\x01\x12\x11\n" +
 	"\rPUSH_RESPONSE\x10\x02B\t\n" +
-	"\amessageB,Z*github.com/bifrostinc/code-sync-sidecar/pbb\x06proto3"
+	"\amessageB:Z8github.com/bifrostinc/code-sync-mcp/code-sync-sidecar/pbb\x06proto3"
 
 var (
 	file_ws_proto_rawDescOnce sync.Once

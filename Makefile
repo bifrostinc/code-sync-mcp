@@ -101,3 +101,22 @@ mcp-pypi-workflow: mcp-pypi-test
 	@echo ""
 	@echo "If everything works, publish to production PyPI with:"
 	@echo "  make mcp-pypi-publish"
+
+
+proto: install-protoc-gen-go
+	mkdir -p code-sync-sidecar/pb code-sync-proxy/src/code_sync_proxy/pb code-sync-mcp/src/code_sync_mcp/pb && \
+	protoc --proto_path=proto --go_out=code-sync-sidecar/pb --go_opt=paths=source_relative proto/ws.proto && \
+	protoc --proto_path=proto --python_out=code-sync-proxy/src/code_sync_proxy/pb proto/ws.proto && \
+	protoc --proto_path=proto --python_out=code-sync-mcp/src/code_sync_mcp/pb proto/ws.proto
+
+# Set the paths for protoc-gen-go
+GOBIN ?= $(shell go env GOPATH)/bin
+PATH := $(GOBIN):$(PATH)
+
+install-protoc-gen-go:
+	@if ! command -v protoc-gen-go &> /dev/null; then \
+		echo "protoc-gen-go not found. Installing..."; \
+		go install google.golang.org/protobuf/cmd/protoc-gen-go@latest; \
+	else \
+		echo "protoc-gen-go already installed."; \
+	fi

@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+option go_package = "github.com/bifrostinc/code-sync-mcp/code-sync-sidecar/pb";
+
+message PushMessage {
+    string push_id = 1;
+    bytes batch_file = 2;
+    string code_diff = 3;
+    string change_description = 4;
+}
+message PushResponse {
+    enum PushStatus {
+        UNKNOWN = 0;
+        PENDING = 1;
+        IN_PROGRESS = 2;
+        FAILED = 3;
+        COMPLETED = 4;
+    }
+
+    PushStatus status = 1;
+    string error_message = 2;
+}
+
+message WebsocketMessage {
+
+    enum MessageType {
+        UNKNOWN = 0;
+        PUSH_REQUEST = 1;
+        PUSH_RESPONSE = 2;
+   }
+
+    MessageType message_type = 1;
+    oneof message {
+        PushMessage push_message = 2;
+        PushResponse push_response = 3;
+   }
+}
+
+
+
