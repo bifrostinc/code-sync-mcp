@@ -54,7 +54,7 @@ wheels = [
 ]
 
 [[package]]
-name = "code-sync-mcp"
+name = "code-sync-mcp-server"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [

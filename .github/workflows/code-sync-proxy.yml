@@ -27,7 +27,7 @@ jobs:
           cd code-sync-proxy
           uv venv
           source .venv/bin/activate
-          uv pip install pytest
+          uv pip install pytest pytest-asyncio
           if [ -f pyproject.toml ]; then uv pip install -e .; fi
 
       - name: Run tests

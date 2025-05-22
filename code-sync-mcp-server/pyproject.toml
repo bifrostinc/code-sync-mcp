@@ -1,5 +1,5 @@
 [project]
-name = "code_sync_mcp"
+name = "code-sync-mcp-server"
 version = "0.1.0"
 description = "Code Sync MCP Server"
 readme = "README.md"
