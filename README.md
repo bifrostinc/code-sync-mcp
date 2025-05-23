@@ -7,9 +7,10 @@ The Code Sync MCP architecture bridges the gap between local development and rem
 ## What It Does
 
 - **Instant remote sync**: Changes in your local editor appear immediately in containers running anywhere
-- **Multi-environment support**: Each developer can have their own isolated environment
+- **Multi-environment support**: Each developer can target their own remote environment
 - **Minimal container changes**: Just wrap your existing entrypoint—no Dockerfile rewrites needed
 - **IDE integration**: Works through MCP tools in editors like Cursor
+- **Secure remote access**: API key authentication for production-safe remote connections
 
 ## Demo
 
