@@ -1,12 +1,12 @@
 # Code Sync MCP Server
 
-**Hot reload your containerized applications directly from your IDE using MCP (Model Context Protocol).**
+**Hot reload your remote containerized applications directly from your IDE using MCP (Model Context Protocol).**
 
-Code Sync lets you edit code in your editor and instantly see changes reflected in running containers—no manual deployments, no waiting for CI/CD pipelines. Perfect for development environments where you want immediate feedback.
+The Code Sync MCP architecture bridges the gap between local development and remote containers - edit code in your local editor and instantly see changes reflected in containers running anywhere (staging, development clusters, cloud environments, or even production). No more manual deployments or waiting for CI/CD pipelines just to test a small change.
 
 ## What It Does
 
-- **Instant sync**: Changes in your editor appear immediately in your running containers
+- **Instant remote sync**: Changes in your local editor appear immediately in containers running anywhere
 - **Multi-environment support**: Each developer can have their own isolated environment
 - **Minimal container changes**: Just wrap your existing entrypoint—no Dockerfile rewrites needed
 - **IDE integration**: Works through MCP tools in editors like Cursor
