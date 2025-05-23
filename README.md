@@ -14,7 +14,7 @@ The Code Sync MCP architecture bridges the gap between local development and rem
 
 ## Demo
 
-The included [docker-compose.yaml](./docker-compose.yml) runs everything locally with a demo app. See [Try It Out](#try-it-out) for instructions on how to run this locally.
+The included [docker-compose.yaml](./docker-compose.yml) runs everything locally with a demo app. [See below](#try-it-out) for instructions on how to run this locally.
 
 <video src="https://github.com/user-attachments/assets/eb6c267d-16c5-435f-9179-be13aad13456" width="100"></video>
 
@@ -26,21 +26,23 @@ When you make a code change in your editor:
 
 1. **MCP tool call** triggers from your editor (e.g., Cursor)
 2. **Local rsync** generates a patch of your changes
-3. **Proxy** routes the patch to the correct container environment
-4. **Sidecar** applies changes to a shared volume
-5. **Your app** gets restarted automatically with the new code
+3. **Remote Proxy** (running in your cloud/staging environment) receives the patch and routes to the appropriate deployment
+4. **Sidecar** (running alongside your app container) applies changes to a shared volume
+5. **Your remote app** gets restarted automatically with the new code
 
 ![Architecture diagram](./images/arch.png)
+
+_All components except the MCP server run in your remote environment_
 
 ## Setup Guide
 
 ### Prerequisites
 
-- Docker/container environment
-- Editor with MCP support (like Cursor)
-- An API key for securing connections
+- Remote Docker/container environment (Kubernetes, Docker Swarm, cloud instances, etc.)
+- Local editor with MCP support (like Cursor)
+- An API key for securing remote connections
 
-### 1. Deploy the Proxy (Once per Organization)
+### 1. Deploy the Proxy to your remote environment
 
 The proxy is a central websocket server that routes code changes to the right containers.
 
@@ -50,9 +52,9 @@ The proxy is a central websocket server that routes code changes to the right co
 PROXY_API_KEY=your-secret-key-here
 ```
 
-You only need **one proxy** for all your applications and developers.
+You only need **one proxy** per remote environment for all your applications and developers.
 
-### 2. Configure Your Application (Per App/Deployment)
+### 2. Configure Your Remote Application (Per App/Deployment)
 
 For each app deployment, you need two changes:
 
@@ -67,7 +69,7 @@ sh -c "while [ ! -f /app-files/.sidecar/rsync-launcher.sh ]; do echo 'Waiting fo
 
 Or use the [provided script template](./demo-app/code-sync-entrypoint.sh).
 
-#### B) Add the sidecar container
+#### B) Add the sidecar container to your remote deployment
 
 Deploy [code-sync-sidecar](https://hub.docker.com/r/bifrostinc/code-sync-sidecar) container alongside your app with these environment variables:
 
@@ -77,6 +79,12 @@ BIFROST_API_KEY=your-secret-key-here   # Same as proxy
 BIFROST_APP_ID=my-app                  # Unique app identifier
 BIFROST_DEPLOYMENT_ID=dev-john         # Unique deployment name
 ```
+
+**Deployment examples**:
+
+- Kubernetes: Add as a sidecar container in your pod spec
+- Docker Compose: Add as an additional service with shared volumes
+- ECS: Add as a sidecar container in your task definition
 
 #### C) [If Required] Ensure you app has permissions for syncing (if not running as root)
 
@@ -90,7 +98,7 @@ USER appuser
 
 ### 3. Configure Your Editor
 
-For **Cursor**, add this to your MCP settings:
+For **Cursor**, add this to your **local** MCP settings pointing to your **remote** proxy:
 
 ```json
 {
@@ -115,59 +123,70 @@ Then you need to add a `.bifrost.json` file to your app's root:
 ```
 {
     "app_id": "my-app",
-    "deployment_id": "dev-john"
+    "deployment_id": "dev-john",
+    "app_root": "absolute/path/to/code/root"
 }
 ```
 
 ## Usage
 
-Once set up, use the `push_changes` tool in your editor to sync your local code changes to any running container. The system respects your `.gitignore` file automatically.
+Once set up, use the `push_changes` tool in your editor to sync your local code changes to any remote container. The system respects your `.gitignore` file automatically.
+
+**Example workflow**:
+
+- Edit a file locally in Cursor
+- Use the `push_changes` MCP tool
+- See changes immediately reflected in your remote staging environment
+- Debug, iterate, and test—all without leaving your local editor
+
 
 ## Architecture Deep Dive
 
 The system has four main components:
 
-### [code-sync-mcp-server](./code-sync-mcp-server/)
+### [code-sync-mcp-server](./code-sync-mcp-server/) (Local)
 
 - Runs locally in your editor
 - Exposes `push_changes` MCP tool
 - Uses `rsync` to efficiently detect and package changes
 - Respects `.gitignore` rules
 
-### [code-sync-proxy](./code-sync-proxy/)
+### [code-sync-proxy](./code-sync-proxy/) (Remote)
 
-- Central websocket server (FastAPI-based)
+- Central websocket server (FastAPI-based) running your remote environment
 - Routes change batches to correct sidecar instances
 - Handles authentication and connection management
 - One instance serves all apps and developers
 
-### [code-sync-sidecar](./code-sync-sidecar/)
+### [code-sync-sidecar](./code-sync-sidecar/) (Remote)
 
-- Runs alongside each application container
+- Runs alongside each container in your remote environment
 - Receives change batches via websocket
 - Syncs files to shared volume with main app
 - Sends `SIGHUP` to trigger app restart
 
-### [rsync-launcher.sh](./code-sync-sidecar/launcher-script/rsync-launcher.sh)
+### [rsync-launcher.sh](./code-sync-sidecar/launcher-script/rsync-launcher.sh) (Remote)
 
-- Wrapper script for your application
+- Wrapper script for your remote application
 - Syncs files from shared volume into app directory
 - Handles graceful restarts on file changes
 - Minimal modification to existing containers
 
-## Key Benefits
+## Key Benefits for Remote Development
 
-- **Fast iteration**: See changes instantly without rebuilding containers
-- **Multiple environments**: Each developer gets isolated sync targets
-- **Minimal invasiveness**: Only requires entrypoint wrapper
-- **Efficient**: Uses rsync for incremental updates only
-- **Secure**: API key authentication between all components
+- **Eliminate the deploy-test cycle**: No more waiting for CI/CD for simple changes
+- **True remote development**: Work with remote databases, services, and infrastructure
+- **Multiple remote environments**: Each developer can target their own remote staging
+- **Production-like testing**: Test in environments that match production exactly
 
-## Try It Out
 
-1. Clone this repo
-2. Run `docker-compose up`
-3. Configure Cursor with the local proxy settings
-4. Make changes to files in `demo-app/` and push them!
+## Local Demo (For Testing)
 
-The demo app will immediately reflect your changes.
+- Clone this repo
+- Run `docker-compose up` (simulates a remote environment locally)
+- Configure Cursor with the local proxy settings
+- Make changes to files in `demo-app/` and push them!
+
+The demo app will immediately reflect your changes. **In real usage, the proxy and sidecar would be running in your remote infrastructure instead of locally.**
+
+
