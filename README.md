@@ -15,7 +15,7 @@ Code Sync lets you edit code in your editor and instantly see changes reflected 
 
 The included [docker-compose.yaml](./docker-compose.yml) runs everything locally with a demo app. See [Try It Out](#try-it-out) for instructions on how to run this locally.
 
-<video src="https://github.com/user-attachments/assets/e3d89ec6-3d0a-472d-98f1-5317c118e310" width="100"></video>
+<video src="https://github.com/user-attachments/assets/eb6c267d-16c5-435f-9179-be13aad13456" width="100"></video>
 
 _This demo shows introducing a bug in a health check, seeing it break immediately, then fixing it in real-time._
 
