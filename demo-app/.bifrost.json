@@ -1,4 +1,5 @@
 {
     "app_id": "standalone",
-    "deployment_id": "standalone"
+    "deployment_id": "standalone",
+    "app_root": "/Users/conorbranagan/dev/github.com/bifrostinc/code-sync-mcp/demo-app"
 }

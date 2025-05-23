@@ -140,14 +140,14 @@ start_app() {
         APP_PGID=$APP_PID
         
         # Save PIDs to files
-        echo "[code-sync] $APP_PID" > "$APP_PID_FILE"
-        echo "[code-sync] $APP_PGID" > "$APP_PGID_FILE"
+        echo "$APP_PID" > "$APP_PID_FILE"
+        echo "$APP_PGID" > "$APP_PGID_FILE"
         echo "[code-sync] Application started with PID $APP_PID, PGID $APP_PGID"
         
         # Wait for the process and capture exit status
         wait $APP_PID
         _exit_status=$?
-        echo "[code-sync] Application command ('$*') exited with status $_exit_status" > "${LAUNCHER_DIR}/app.status"
+        echo "Application command ('$*') exited with status $_exit_status" > "${LAUNCHER_DIR}/app.status"
     ) &
     
     # Give processes time to initialize
@@ -176,7 +176,7 @@ while true; do
         
         # Try to check the process group rather than just the PID
         if ! kill -0 -$current_pgid 2>/dev/null; then
-            echo "[code-sync] Application process group exited. Restarting."
+            echo "[code-sync] Application process group at $current_pgid exited. Restarting."
             start_app "$@"
         fi
     else
