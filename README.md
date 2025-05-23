@@ -14,7 +14,7 @@ The Code Sync MCP architecture bridges the gap between local development and rem
 
 ## Demo
 
-The included [docker-compose.yaml](./docker-compose.yml) runs everything locally with a demo app. [See below](#try-it-out) for instructions on how to run this locally.
+The included [docker-compose.yaml](./docker-compose.yml) runs everything locally with a demo app. [See below](#local-demo-for-testing) for instructions on how to run this locally.
 
 <video src="https://github.com/user-attachments/assets/eb6c267d-16c5-435f-9179-be13aad13456" width="100"></video>
 
