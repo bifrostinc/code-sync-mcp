@@ -28,6 +28,25 @@ class RequestRequiresReconnectError(Exception):
     pass
 
 
+# Custom exceptions for readiness check failures
+class ReadinessCheckError(Exception):
+    """Base exception for readiness check failures."""
+
+    pass
+
+
+class AuthenticationError(ReadinessCheckError):
+    """Exception raised when API key is invalid or unauthorized."""
+
+    pass
+
+
+class SidecarNotConnectedError(ReadinessCheckError):
+    """Exception raised when sidecar is not connected or there are network issues."""
+
+    pass
+
+
 class WebsocketClient:
 
     def __init__(self, app_id: str, deployment_id: str, app_root: str):
@@ -40,14 +59,8 @@ class WebsocketClient:
         if not self._api_key:
             raise ValueError("BIFROST_API_KEY is not set")
 
-        # Set appropriate URLs based on standalone mode
         self._base_url = os.getenv("BIFROST_API_URL", "http://localhost:8000")
         self._ws_base_url = os.getenv("BIFROST_WS_API_URL", "ws://localhost:8000")
-
-        # Log the mode we're running in
-        log.info(
-            f"WebsocketClient initialized, base_url={self._base_url}, ws_base_url={self._ws_base_url}"
-        )
 
         self._push_handler = PushHandler()
 
@@ -98,11 +111,29 @@ class WebsocketClient:
                         f"Client {self.app_id}/{self.deployment_id} reported as not ready."
                     )
                 return is_ready
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code == 401:
+                log.error(
+                    f"Authentication failed for {self.app_id}/{self.deployment_id}: "
+                    f"Invalid API key. Status: {e.response.status_code}"
+                )
+                raise AuthenticationError("Invalid API key") from e
+            else:
+                log.warning(
+                    f"HTTP error checking readiness for {self.app_id}/{self.deployment_id}: "
+                    f"Status {e.response.status_code}. This may indicate the sidecar is not connected."
+                )
+                raise SidecarNotConnectedError(
+                    f"HTTP error {e.response.status_code} - sidecar may not be connected"
+                ) from e
         except httpx.RequestError as e:
             log.error(
-                f"Error checking readiness for {self.app_id}/{self.deployment_id}: {e}"
+                f"Network error checking readiness for {self.app_id}/{self.deployment_id}: {e}. "
+                f"This may indicate the sidecar is not connected or there are network issues."
             )
-            return False  # Assume not ready if we can't check
+            raise SidecarNotConnectedError(
+                "Network error - sidecar may not be connected or there are network issues"
+            ) from e
         except Exception:
             log.exception(
                 f"Unexpected error checking readiness for {self.app_id}/{self.deployment_id}"
@@ -125,129 +156,195 @@ class WebsocketClient:
 
     async def _connect(self):
         """Main function for the IDE client connection and request handling."""
-        headers = {"X-API-Key": self._api_key}
-        for _ in range(READINESS_CHECKS_COUNT):
-            is_ready = await self.check_readiness()
-            if is_ready:
-                break
-            log.info(
-                f"Code-sync proxy not ready, waiting {READINESS_CHECK_INTERVAL_SECONDS} seconds and checking again"
-            )
-            await asyncio.sleep(READINESS_CHECK_INTERVAL_SECONDS)
+        await self._ensure_readiness()
+        await self._run_connection_loop()
 
-        if not is_ready:
+    async def _ensure_readiness(self):
+        """Ensure the deployment is ready before attempting connection."""
+        last_error = None
+        is_ready = False
+
+        for attempt in range(READINESS_CHECKS_COUNT):
+            try:
+                is_ready = await self.check_readiness()
+                if is_ready:
+                    return
+                log.info(
+                    f"Proxy not ready, waiting {READINESS_CHECK_INTERVAL_SECONDS} seconds and checking again"
+                )
+            except AuthenticationError as e:
+                # Authentication errors are immediate failures, don't retry
+                log.error(f"Authentication error on attempt {attempt + 1}: {e}")
+                raise RuntimeError(f"Authentication failed: {e}") from e
+            except SidecarNotConnectedError as e:
+                # Sidecar connection errors should be retried
+                last_error = e
+                log.warning(f"Sidecar connection error on attempt {attempt + 1}: {e}")
+                if attempt < READINESS_CHECKS_COUNT - 1:
+                    log.info(
+                        f"Retrying readiness check in {READINESS_CHECK_INTERVAL_SECONDS} seconds..."
+                    )
+                    await asyncio.sleep(READINESS_CHECK_INTERVAL_SECONDS)
+                continue
+            except Exception as e:
+                # Other unexpected errors
+                last_error = e
+                log.error(
+                    f"Unexpected error checking readiness on attempt {attempt + 1}: {e}"
+                )
+                if attempt < READINESS_CHECKS_COUNT - 1:
+                    log.info(
+                        f"Retrying readiness check in {READINESS_CHECK_INTERVAL_SECONDS} seconds..."
+                    )
+                    await asyncio.sleep(READINESS_CHECK_INTERVAL_SECONDS)
+                continue
+
+            # Only sleep if we didn't break out of the loop and not on the last attempt
+            if attempt < READINESS_CHECKS_COUNT - 1:
+                await asyncio.sleep(READINESS_CHECK_INTERVAL_SECONDS)
+
+        # If we get here, readiness check failed
+        self._raise_readiness_error(last_error)
+
+    def _raise_readiness_error(self, last_error):
+        """Raise appropriate error based on the last readiness check failure."""
+        if isinstance(last_error, SidecarNotConnectedError):
             raise RuntimeError(
-                f"Deployment not available after {READINESS_CHECKS_COUNT} readiness checks"
+                f"Deployment not available after {READINESS_CHECKS_COUNT} readiness checks: "
+                f"{last_error}. Please ensure the sidecar is running and connected."
+            ) from last_error
+        elif last_error:
+            raise RuntimeError(
+                f"Deployment not available after {READINESS_CHECKS_COUNT} readiness checks: {last_error}"
+            ) from last_error
+        else:
+            raise RuntimeError(
+                f"Deployment not available after {READINESS_CHECKS_COUNT} readiness checks - proxy reported not ready"
             )
 
+    async def _run_connection_loop(self):
+        """Run the main connection loop with retry logic."""
         uri = self._get_websocket_uri()
+        headers = {"X-API-Key": self._api_key}
         log.info(f"Creating WebSocket connection to: {uri}")
 
         retries = 0
         while not self._close_requested.is_set() and retries < MAX_CONNECT_RETRIES:
             try:
-                # Establish WebSocket connection
                 async with websockets.connect(
                     uri, additional_headers=headers
                 ) as websocket:
-                    self._websocket = websocket
-                    log.info("Connected to code-sync proxy")
-                    self._connected.set()
-                    # Create tasks for waiting on request or close
-                    self._request_waiter = asyncio.create_task(
-                        self._request_available_event.wait()
-                    )
-                    self._close_waiter = asyncio.create_task(
-                        self._close_requested.wait()
-                    )
+                    await self._handle_websocket_connection(websocket)
 
-                    while not self._close_requested.is_set():
-                        done, pending = await asyncio.wait(
-                            [self._request_waiter, self._close_waiter],
-                            return_when=asyncio.FIRST_COMPLETED,
-                        )
-                        if self._close_waiter in done:
-                            log.info("Close requested, shutting down connection.")
-                            break
-
-                        if self._request_waiter in done:
-                            self._request_available_event.clear()
-                            # Recreate request_waiter for the next wait *before* potentially long request
-                            self._request_waiter = asyncio.create_task(
-                                self._request_available_event.wait()
-                            )
-
-                            # Check if there's an active request to process
-                            active_future = self._current_request_future
-                            if active_future and not active_future.done():
-                                log.info("Processing active request...")
-                                try:
-                                    await self._dispatch_request_handler(
-                                        websocket, active_future
-                                    )
-                                except RequestRequiresReconnectError:
-                                    # Request failed due to connection issue, need to reconnect and retry.
-                                    # The future remains pending. Ensure _request_available_event is set
-                                    # so it retries after reconnecting.
-                                    log.warning(
-                                        "Request requires reconnect. Breaking inner loop to reconnect."
-                                    )
-                                    self._request_available_event.set()
-                                    break
-                                except Exception as e:
-                                    log.exception("Error during request processing.")
-                                    if not active_future.done():
-                                        active_future.set_exception(e)
-                                    # self._current_request_future should be cleared by the calling method's finally block
-
-                    # Cleanup pending tasks if breaking inner loop
-                    for task in pending:
-                        task.cancel()
+                    # If we get here, close was requested during connection
                     if self._close_requested.is_set():
-                        break  # Break outer loop if close was requested during inner loop execution
+                        break
 
             except (
                 websockets.exceptions.ConnectionClosedError,
                 OSError,
                 ConnectionRefusedError,
             ) as e:
-                log.warning(
-                    f"Connection failed or closed: {e}. Retrying in {RECONNECT_DELAY} seconds...",
-                    exc_info=True,
-                )
-                if (
-                    self._current_request_future
-                    and not self._current_request_future.done()
-                ):
-                    log.warning(
-                        "Setting exception for active request future due to connection error."
-                    )
-                    self._current_request_future.set_exception(e)
-                    self._current_request_future = None
+                self._handle_connection_error(e)
             except Exception as e:
-                log.exception(
-                    f"{e} An unexpected error occurred in the connect loop. Retrying in {RECONNECT_DELAY} seconds..."
-                )
-                # Fail current push future on unexpected errors too
-                if (
-                    self._current_request_future
-                    and not self._current_request_future.done()
-                ):
-                    log.warning(
-                        "Setting exception for active request future due to unexpected error."
-                    )
-                    self._current_request_future.set_exception(
-                        RuntimeError("Unexpected connection loop error during push")
-                    )
-                    self._current_request_future = None
+                self._handle_unexpected_error(e)
             finally:
                 self._connected.clear()
 
             # Wait before retrying connection only if not closing
             if not self._close_requested.is_set():
                 await asyncio.sleep(RECONNECT_DELAY)
+                retries += 1
 
+        await self._cleanup_after_connection_loop()
+
+    async def _handle_websocket_connection(self, websocket):
+        """Handle an active WebSocket connection and process requests."""
+        self._websocket = websocket
+        log.info("Connected to code-sync proxy")
+        self._connected.set()
+
+        # Create tasks for waiting on request or close
+        self._request_waiter = asyncio.create_task(self._request_available_event.wait())
+        self._close_waiter = asyncio.create_task(self._close_requested.wait())
+
+        try:
+            while not self._close_requested.is_set():
+                done, pending = await asyncio.wait(
+                    [self._request_waiter, self._close_waiter],
+                    return_when=asyncio.FIRST_COMPLETED,
+                )
+
+                if self._close_waiter in done:
+                    log.info("Close requested, shutting down connection.")
+                    break
+
+                if self._request_waiter in done:
+                    should_reconnect = await self._process_request(websocket)
+                    if should_reconnect:
+                        break
+        finally:
+            # Cleanup pending tasks
+            for task in [self._request_waiter, self._close_waiter]:
+                if task and not task.done():
+                    task.cancel()
+
+    async def _process_request(self, websocket) -> bool:
+        """Process a single request. Returns True if reconnection is needed."""
+        self._request_available_event.clear()
+        # Recreate request_waiter for the next wait *before* potentially long request
+        self._request_waiter = asyncio.create_task(self._request_available_event.wait())
+
+        # Check if there's an active request to process
+        active_future = self._current_request_future
+        if active_future and not active_future.done():
+            log.info("Processing active request...")
+            try:
+                await self._dispatch_request_handler(websocket, active_future)
+            except RequestRequiresReconnectError:
+                # Request failed due to connection issue, need to reconnect and retry.
+                log.warning(
+                    "Request requires reconnect. Breaking inner loop to reconnect."
+                )
+                self._request_available_event.set()
+                return True  # Signal reconnection needed
+            except Exception as e:
+                log.exception("Error during request processing.")
+                if not active_future.done():
+                    active_future.set_exception(e)
+
+        return False  # No reconnection needed
+
+    def _handle_connection_error(self, e):
+        """Handle connection-related errors."""
+        log.warning(
+            f"Connection failed or closed: {e}. Retrying in {RECONNECT_DELAY} seconds...",
+            exc_info=True,
+        )
+        self._fail_active_request(e)
+
+    def _handle_unexpected_error(self, e):
+        """Handle unexpected errors during connection."""
+        log.exception(
+            f"{e} An unexpected error occurred in the connect loop. Retrying in {RECONNECT_DELAY} seconds..."
+        )
+        self._fail_active_request(
+            RuntimeError("Unexpected connection loop error during push")
+        )
+
+    def _fail_active_request(self, exception):
+        """Fail the current active request with the given exception."""
+        if self._current_request_future and not self._current_request_future.done():
+            log.warning(
+                "Setting exception for active request future due to connection error."
+            )
+            self._current_request_future.set_exception(exception)
+            self._current_request_future = None
+
+    async def _cleanup_after_connection_loop(self):
+        """Clean up after the connection loop exits."""
         log.info("WebsocketClient connection loop finished.")
+
         # Fail any potentially active push future if the loop exits cleanly due to close request
         if self._current_request_future and not self._current_request_future.done():
             log.info(

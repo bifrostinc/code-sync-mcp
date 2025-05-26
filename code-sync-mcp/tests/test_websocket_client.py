@@ -5,12 +5,15 @@ from unittest.mock import AsyncMock, patch, MagicMock, call
 import pytest
 import pytest_asyncio
 import websockets
+import httpx
 
 from code_sync_mcp.websocket_client import (
     WebsocketClient,
     PushFuture,
     PushResult,
     RequestRequiresReconnectError,
+    AuthenticationError,
+    SidecarNotConnectedError,
 )
 from code_sync_mcp.client_manager import ClientManager
 from code_sync_mcp.pb import ws_pb2
@@ -75,10 +78,24 @@ async def test_client_manager_create_duplicate():
     deployment_id = "test_deployment_id"
     key = (app_name, deployment_id)
 
-    # Mock connect for the first creation
+    # Mock connect for the first creation and speed up all async operations
     with patch.object(
         WebsocketClient, "connect", new_callable=AsyncMock
-    ) as mock_connect:
+    ) as mock_connect, patch("asyncio.sleep", new_callable=AsyncMock), patch.object(
+        ClientManager, "_readiness_check_interval_seconds", 0.01
+    ), patch(
+        "asyncio.wait_for"
+    ) as mock_wait_for:
+        # Make wait_for bypass timeouts for the readiness checker
+        async def fast_wait_for(coro, timeout):
+            # If timeout is 10.0 (from close_all) or 60 (from readiness checker), just await the coro
+            if timeout in (10.0, 60):
+                return await coro
+            # Otherwise use the original wait_for behavior
+            return await asyncio.wait_for(coro, timeout)
+
+        mock_wait_for.side_effect = fast_wait_for
+
         mock_connect.side_effect = lambda: ClientManager._active_clients[
             key
         ]._connected.set()
@@ -249,7 +266,7 @@ async def test_client_connect_readiness_failure(mock_ws_connect):
 
         assert "Deployment not available after 3 readiness checks" in str(excinfo.value)
         assert client.check_readiness.call_count == 3
-        assert mock_sleep.call_count == 3
+        assert mock_sleep.call_count == 2
 
         # Ensure websocket connect was not called
         mock_ws_connect.assert_not_called()
@@ -537,3 +554,176 @@ async def test_send_push_request_recv_connection_closed(
             ),
         ).SerializeToString()
     )
+
+
+@pytest.mark.asyncio
+@patch("code_sync_mcp.websocket_client.httpx.AsyncClient")
+async def test_check_readiness_auth_error(mock_async_client):
+    """Test that check_readiness raises AuthenticationError on 401 status."""
+    app_id = "auth_error_app"
+    app_root = "/auth/error/root"
+    deployment_id = "auth_error_deployment_id"
+
+    client = WebsocketClient(app_id, deployment_id, app_root)
+
+    # Mock httpx client to raise HTTPStatusError with 401
+    mock_client_instance = AsyncMock()
+    mock_async_client.return_value.__aenter__.return_value = mock_client_instance
+
+    mock_response = MagicMock()
+    mock_response.status_code = 401
+    error = httpx.HTTPStatusError(
+        "Unauthorized", request=MagicMock(), response=mock_response
+    )
+    mock_client_instance.get.side_effect = error
+
+    with pytest.raises(AuthenticationError, match="Invalid API key"):
+        await client.check_readiness()
+
+    _cleanup_client(client)
+
+
+@pytest.mark.asyncio
+@patch("code_sync_mcp.websocket_client.httpx.AsyncClient")
+async def test_check_readiness_http_error_non_401(mock_async_client):
+    """Test that check_readiness raises SidecarNotConnectedError on non-401 HTTP errors."""
+    app_id = "http_error_app"
+    app_root = "/http/error/root"
+    deployment_id = "http_error_deployment_id"
+
+    client = WebsocketClient(app_id, deployment_id, app_root)
+
+    # Mock httpx client to raise HTTPStatusError with 500
+    mock_client_instance = AsyncMock()
+    mock_async_client.return_value.__aenter__.return_value = mock_client_instance
+
+    mock_response = MagicMock()
+    mock_response.status_code = 500
+    error = httpx.HTTPStatusError(
+        "Internal Server Error", request=MagicMock(), response=mock_response
+    )
+    mock_client_instance.get.side_effect = error
+
+    with pytest.raises(
+        SidecarNotConnectedError,
+        match="HTTP error 500 - sidecar may not be connected",
+    ):
+        await client.check_readiness()
+
+    _cleanup_client(client)
+
+
+@pytest.mark.asyncio
+@patch("code_sync_mcp.websocket_client.httpx.AsyncClient")
+async def test_check_readiness_request_error(mock_async_client):
+    """Test that check_readiness raises SidecarNotConnectedError on network/request errors."""
+    app_id = "request_error_app"
+    app_root = "/request/error/root"
+    deployment_id = "request_error_deployment_id"
+
+    client = WebsocketClient(app_id, deployment_id, app_root)
+
+    # Mock httpx client to raise RequestError
+    mock_client_instance = AsyncMock()
+    mock_async_client.return_value.__aenter__.return_value = mock_client_instance
+
+    error = httpx.RequestError("Connection failed")
+    mock_client_instance.get.side_effect = error
+
+    with pytest.raises(
+        SidecarNotConnectedError,
+        match="Network error - sidecar may not be connected",
+    ):
+        await client.check_readiness()
+
+    _cleanup_client(client)
+
+
+@pytest.mark.asyncio
+@patch("code_sync_mcp.websocket_client.httpx.AsyncClient")
+async def test_check_readiness_unexpected_error(mock_async_client):
+    """Test that check_readiness returns False on unexpected errors."""
+    app_id = "unexpected_error_app"
+    app_root = "/unexpected/error/root"
+    deployment_id = "unexpected_error_deployment_id"
+
+    client = WebsocketClient(app_id, deployment_id, app_root)
+
+    # Mock httpx client to raise an unexpected exception
+    mock_client_instance = AsyncMock()
+    mock_async_client.return_value.__aenter__.return_value = mock_client_instance
+
+    error = ValueError("Unexpected error")
+    mock_client_instance.get.side_effect = error
+
+    result = await client.check_readiness()
+    assert result is False
+
+    _cleanup_client(client)
+
+
+@pytest.mark.asyncio
+@patch("code_sync_mcp.websocket_client.websockets.connect")
+async def test_client_connect_auth_error_propagation(mock_ws_connect):
+    """Test that AuthenticationError during readiness check propagates and stops retries."""
+    app_id = "auth_prop_app"
+    app_root = "/auth/prop/root"
+    deployment_id = "auth_prop_deployment_id"
+
+    client = WebsocketClient(app_id, deployment_id, app_root)
+    client._connection_timeout = 0.1  # Make connection timeout very short
+
+    # Mock check_readiness to raise AuthenticationError
+    auth_error = AuthenticationError("Invalid API key")
+    client.check_readiness = AsyncMock(side_effect=auth_error)
+
+    with patch("asyncio.sleep", new_callable=AsyncMock) as mock_sleep:
+        with pytest.raises(
+            RuntimeError, match="Authentication failed: Invalid API key"
+        ):
+            await client.connect()
+
+        # Should only call check_readiness once for auth errors (no retries)
+        assert client.check_readiness.call_count == 1
+        # Should not sleep for auth errors (immediate failure)
+        mock_sleep.assert_not_called()
+
+    # Ensure websocket connect was not called
+    mock_ws_connect.assert_not_called()
+
+    _cleanup_client(client)
+
+
+@pytest.mark.asyncio
+@patch("code_sync_mcp.websocket_client.websockets.connect")
+async def test_client_connect_sidecar_error_retries(mock_ws_connect):
+    """Test that SidecarNotConnectedError during readiness check is retried."""
+    app_id = "sidecar_retry_app"
+    app_root = "/sidecar/retry/root"
+    deployment_id = "sidecar_retry_deployment_id"
+
+    client = WebsocketClient(app_id, deployment_id, app_root)
+    client._connection_timeout = 0.1  # Make connection timeout very short
+
+    # Mock check_readiness to raise SidecarNotConnectedError
+    sidecar_error = SidecarNotConnectedError("Sidecar not connected")
+    client.check_readiness = AsyncMock(side_effect=sidecar_error)
+
+    with patch("asyncio.sleep", new_callable=AsyncMock) as mock_sleep:
+        with pytest.raises(
+            RuntimeError,
+            match="Deployment not available after 3 readiness checks.*Sidecar not connected.*Please ensure the sidecar is running",
+        ):
+            await client.connect()
+
+        # Should call check_readiness 3 times (with retries)
+        assert client.check_readiness.call_count == 3
+        # Should sleep 2 times (between 3 attempts)
+        assert mock_sleep.call_count == 2
+        # Verify sleep was called with the expected interval
+        mock_sleep.assert_has_calls([call(2), call(2)])
+
+    # Ensure websocket connect was not called
+    mock_ws_connect.assert_not_called()
+
+    _cleanup_client(client)

@@ -2,7 +2,11 @@ import logging
 import asyncio
 from typing import Optional
 
-from code_sync_mcp.websocket_client import WebsocketClient
+from code_sync_mcp.websocket_client import (
+    WebsocketClient,
+    AuthenticationError,
+    SidecarNotConnectedError,
+)
 
 log = logging.getLogger(__name__)
 
@@ -74,9 +78,19 @@ class ClientManager:
                                 f"Client {key} is not ready. Closing and removing."
                             )
                             clients_to_remove.append(key)
+                    except AuthenticationError as e:
+                        log.error(
+                            f"Authentication error for client {key}: {e}. Removing client."
+                        )
+                        clients_to_remove.append(key)
+                    except SidecarNotConnectedError as e:
+                        log.warning(
+                            f"Sidecar not connected for client {key}: {e}. Removing client."
+                        )
+                        clients_to_remove.append(key)
                     except Exception as e:
                         log.error(
-                            f"Error during readiness check for client {key}: {e}. Removing."
+                            f"Unexpected error during readiness check for client {key}: {e}. Removing."
                         )
                         clients_to_remove.append(key)
 
