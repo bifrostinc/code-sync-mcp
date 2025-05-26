@@ -249,7 +249,7 @@ async def test_client_connect_readiness_failure(mock_ws_connect):
 
         assert "Deployment not available after 3 readiness checks" in str(excinfo.value)
         assert client.check_readiness.call_count == 3
-        assert mock_sleep.call_count == 3
+        assert mock_sleep.call_count == 2
 
         # Ensure websocket connect was not called
         mock_ws_connect.assert_not_called()

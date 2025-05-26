@@ -28,6 +28,25 @@ class RequestRequiresReconnectError(Exception):
     pass
 
 
+# Custom exceptions for readiness check failures
+class ReadinessCheckError(Exception):
+    """Base exception for readiness check failures."""
+
+    pass
+
+
+class AuthenticationError(ReadinessCheckError):
+    """Exception raised when API key is invalid or unauthorized."""
+
+    pass
+
+
+class SidecarNotConnectedError(ReadinessCheckError):
+    """Exception raised when sidecar is not connected or there are network issues."""
+
+    pass
+
+
 class WebsocketClient:
 
     def __init__(self, app_id: str, deployment_id: str, app_root: str):
@@ -40,14 +59,8 @@ class WebsocketClient:
         if not self._api_key:
             raise ValueError("BIFROST_API_KEY is not set")
 
-        # Set appropriate URLs based on standalone mode
         self._base_url = os.getenv("BIFROST_API_URL", "http://localhost:8000")
         self._ws_base_url = os.getenv("BIFROST_WS_API_URL", "ws://localhost:8000")
-
-        # Log the mode we're running in
-        log.info(
-            f"WebsocketClient initialized, base_url={self._base_url}, ws_base_url={self._ws_base_url}"
-        )
 
         self._push_handler = PushHandler()
 
@@ -98,11 +111,29 @@ class WebsocketClient:
                         f"Client {self.app_id}/{self.deployment_id} reported as not ready."
                     )
                 return is_ready
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code == 401:
+                log.error(
+                    f"Authentication failed for {self.app_id}/{self.deployment_id}: "
+                    f"Invalid API key. Status: {e.response.status_code}"
+                )
+                raise AuthenticationError("Invalid API key") from e
+            else:
+                log.warning(
+                    f"HTTP error checking readiness for {self.app_id}/{self.deployment_id}: "
+                    f"Status {e.response.status_code}. This may indicate the sidecar is not connected."
+                )
+                raise SidecarNotConnectedError(
+                    f"HTTP error {e.response.status_code} - sidecar may not be connected"
+                ) from e
         except httpx.RequestError as e:
             log.error(
-                f"Error checking readiness for {self.app_id}/{self.deployment_id}: {e}"
+                f"Network error checking readiness for {self.app_id}/{self.deployment_id}: {e}. "
+                f"This may indicate the sidecar is not connected or there are network issues."
             )
-            return False  # Assume not ready if we can't check
+            raise SidecarNotConnectedError(
+                "Network error - sidecar may not be connected or there are network issues"
+            ) from e
         except Exception:
             log.exception(
                 f"Unexpected error checking readiness for {self.app_id}/{self.deployment_id}"
@@ -126,19 +157,62 @@ class WebsocketClient:
     async def _connect(self):
         """Main function for the IDE client connection and request handling."""
         headers = {"X-API-Key": self._api_key}
-        for _ in range(READINESS_CHECKS_COUNT):
-            is_ready = await self.check_readiness()
-            if is_ready:
-                break
-            log.info(
-                f"Code-sync proxy not ready, waiting {READINESS_CHECK_INTERVAL_SECONDS} seconds and checking again"
-            )
-            await asyncio.sleep(READINESS_CHECK_INTERVAL_SECONDS)
+        last_error = None
+        is_ready = False
+
+        for attempt in range(READINESS_CHECKS_COUNT):
+            try:
+                is_ready = await self.check_readiness()
+                if is_ready:
+                    break
+                log.info(
+                    f"Proxy not ready, waiting {READINESS_CHECK_INTERVAL_SECONDS} seconds and checking again"
+                )
+            except AuthenticationError as e:
+                # Authentication errors are immediate failures, don't retry
+                log.error(f"Authentication error on attempt {attempt + 1}: {e}")
+                raise RuntimeError(f"Authentication failed: {e}") from e
+            except SidecarNotConnectedError as e:
+                # Sidecar connection errors should be retried
+                last_error = e
+                log.warning(f"Sidecar connection error on attempt {attempt + 1}: {e}")
+                if attempt < READINESS_CHECKS_COUNT - 1:
+                    log.info(
+                        f"Retrying readiness check in {READINESS_CHECK_INTERVAL_SECONDS} seconds..."
+                    )
+                    await asyncio.sleep(READINESS_CHECK_INTERVAL_SECONDS)
+                continue
+            except Exception as e:
+                # Other unexpected errors
+                last_error = e
+                log.error(
+                    f"Unexpected error checking readiness on attempt {attempt + 1}: {e}"
+                )
+                if attempt < READINESS_CHECKS_COUNT - 1:
+                    log.info(
+                        f"Retrying readiness check in {READINESS_CHECK_INTERVAL_SECONDS} seconds..."
+                    )
+                    await asyncio.sleep(READINESS_CHECK_INTERVAL_SECONDS)
+                continue
+
+            # Only sleep if we didn't break out of the loop and not on the last attempt
+            if attempt < READINESS_CHECKS_COUNT - 1:
+                await asyncio.sleep(READINESS_CHECK_INTERVAL_SECONDS)
 
         if not is_ready:
-            raise RuntimeError(
-                f"Deployment not available after {READINESS_CHECKS_COUNT} readiness checks"
-            )
+            if isinstance(last_error, SidecarNotConnectedError):
+                raise RuntimeError(
+                    f"Deployment not available after {READINESS_CHECKS_COUNT} readiness checks: "
+                    f"{last_error}. Please ensure the sidecar is running and connected."
+                ) from last_error
+            elif last_error:
+                raise RuntimeError(
+                    f"Deployment not available after {READINESS_CHECKS_COUNT} readiness checks: {last_error}"
+                ) from last_error
+            else:
+                raise RuntimeError(
+                    f"Deployment not available after {READINESS_CHECKS_COUNT} readiness checks - proxy reported not ready"
+                )
 
         uri = self._get_websocket_uri()
         log.info(f"Creating WebSocket connection to: {uri}")
