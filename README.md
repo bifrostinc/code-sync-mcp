@@ -1,8 +1,8 @@
 # Code Sync MCP Server
 
-**Hot reload your remote containerized applications directly from your IDE using MCP (Model Context Protocol).**
+**Hot reload your remote containerized Python applications directly from your IDE using MCP (Model Context Protocol).**
 
-The Code Sync MCP architecture bridges the gap between local development and remote containers - edit code in your local editor and instantly see changes reflected in containers running anywhere (staging, development clusters, cloud environments, or even production). No more manual deployments or waiting for CI/CD pipelines just to test a small change.
+The Code Sync MCP architecture bridges the gap between local development and remote containers for interpreted languages - Python, Ruby, or other interpreted code in your local editor and instantly see changes reflected in containers running anywhere (staging, development clusters, cloud environments, or even production). No compilation step needed - changes take effect immediately.
 
 ## What It Does
 
