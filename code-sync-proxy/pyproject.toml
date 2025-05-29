@@ -6,7 +6,7 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "fastapi[standard]>=0.115.12",
-    "protobuf>=5.29.4",
+    "protobuf==5.29.3",
     "pydantic-settings>=2.9.1",
     "redis>=6.1.0",
 ]
