@@ -182,7 +182,9 @@ async def test_generate_batch_rsync_fails(
 @pytest.mark.asyncio
 async def test_rsync_handler_initialization_rsync_not_found():
     """Test PushHandler initialization fails if rsync executable is not found by shutil.which."""
-    with patch("code_sync_mcp.push_handler.os.path.exists", return_value=False):
+    with patch("code_sync_mcp.push_handler.os.path.exists", return_value=False), patch(
+        "code_sync_mcp.push_handler.sys.platform", "darwin"
+    ):
         with pytest.raises(
             RuntimeError,
             match="On macOS, rsync from Homebrew is required. "

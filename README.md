@@ -247,4 +247,4 @@ Add the following configuration to your Cursor MCP settings:
    - Visit [http://localhost:8080/health](http://localhost:8080/health) to see the updated service
    - Note any errors that may occur during deployment
 
-**Production Usage**: In a real deployment, the proxy and sidecar components would run in your remote infrastructure rather than locally. This demo simulates that environment on your local machine for testing purposes.
+**Real Usage**: In a real deployment, the proxy and sidecar components would run in your remote infrastructure rather than locally. This demo simulates that environment on your local machine for testing purposes.
