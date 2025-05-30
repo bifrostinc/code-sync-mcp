@@ -4,29 +4,7 @@ from pathlib import Path
 import pytest
 import pytest_asyncio
 
-from code_sync_mcp.push_handler import (
-    PushHandler,
-    RSYNC_PATH as HANDLER_RSYNC_PATH,
-)
-
-# Determine the RSYNC_PATH that the RsyncHandler will actually use based on its internal logic.
-# This is important for ensuring tests mock the correct path if it differs from a simple 'rsync'.
-# The RsyncHandler module itself defines RSYNC_PATH, so we use that.
-RSYNC_EXECUTABLE_TO_MOCK = HANDLER_RSYNC_PATH
-
-
-@pytest_asyncio.fixture
-def mock_shutil_which_for_rsync_handler():
-    """Mocks shutil.which to always find the rsync executable."""
-    with patch("shutil.which", return_value=RSYNC_EXECUTABLE_TO_MOCK) as mock_which:
-        yield mock_which
-
-
-@pytest_asyncio.fixture
-async def rsync_handler(mock_shutil_which_for_rsync_handler):
-    """Provides an instance of PushHandler."""
-    # The RSYNC_PATH is passed to the constructor, which already determined the platform-specific path.
-    return PushHandler(rsync_path=RSYNC_EXECUTABLE_TO_MOCK)
+from code_sync_mcp.push_handler import PushHandler
 
 
 @pytest_asyncio.fixture
@@ -66,20 +44,22 @@ def mock_os_path_for_rsync():
 
 @pytest.mark.asyncio
 async def test_generate_batch_success(
-    rsync_handler: PushHandler,
     mock_subprocess_for_rsync,
     mock_aiofiles_for_rsync,
     mock_os_path_for_rsync,
     tmp_path: Path,  # Pytest fixture for temporary directory
 ):
     """Test successful rsync batch generation."""
+    push_handler = PushHandler()
     mock_create_subprocess, mock_proc = mock_subprocess_for_rsync
     mock_aiofiles_open, _ = mock_aiofiles_for_rsync
     _, _ = mock_os_path_for_rsync
     app_root_dir = tmp_path / "app_root"
     app_root_dir.mkdir()
 
-    batch_data = await rsync_handler.generate_batch(str(app_root_dir))
+    batch_data = await push_handler.generate_batch(
+        str(app_root_dir), push_handler._get_rsync_path()
+    )
 
     assert batch_data == b"fake batch data"
 
@@ -88,7 +68,7 @@ async def test_generate_batch_success(
     args, kwargs = mock_create_subprocess.call_args
 
     # Verify rsync command structure (simplified check, focus on key parts)
-    assert args[0] == RSYNC_EXECUTABLE_TO_MOCK
+    assert args[0] == push_handler._get_rsync_path()
     assert "-a" in args
     assert "--delete" in args
     assert "--checksum" in args
@@ -114,12 +94,12 @@ async def test_generate_batch_success(
 
 @pytest.mark.asyncio
 async def test_generate_batch_no_changes(
-    rsync_handler: PushHandler,
     mock_subprocess_for_rsync,
     mock_aiofiles_for_rsync,  # mock_aiofiles is used to simulate empty batch file
     tmp_path: Path,
 ):
     """Test rsync batch generation when no changes are detected (empty batch file)."""
+    push_handler = PushHandler()
     mock_create_subprocess, mock_proc = mock_subprocess_for_rsync
     mock_aiofiles_open, mock_aiofile_read_instance = mock_aiofiles_for_rsync
 
@@ -137,7 +117,9 @@ async def test_generate_batch_no_changes(
     with patch("os.path.exists", return_value=True) as mock_exists, patch(
         "os.path.getsize", return_value=0
     ) as mock_getsize:
-        batch_data = await rsync_handler.generate_batch(str(app_root_dir))
+        batch_data = await push_handler.generate_batch(
+            str(app_root_dir), push_handler._get_rsync_path()
+        )
 
     assert batch_data == b""
     mock_create_subprocess.assert_awaited_once()
@@ -169,12 +151,12 @@ async def test_generate_batch_no_changes(
 
 @pytest.mark.asyncio
 async def test_generate_batch_rsync_fails(
-    rsync_handler: PushHandler,
     mock_subprocess_for_rsync,
     mock_aiofiles_for_rsync,
     tmp_path: Path,
 ):
     """Test rsync batch generation when the rsync command itself fails."""
+    push_handler = PushHandler()
     mock_create_subprocess, mock_proc = mock_subprocess_for_rsync
     mock_aiofiles_open, _ = mock_aiofiles_for_rsync
 
@@ -188,7 +170,9 @@ async def test_generate_batch_rsync_fails(
     with pytest.raises(
         RuntimeError, match="Rsync process failed \(code 1\): rsync error message"
     ):
-        await rsync_handler.generate_batch(str(app_root_dir))
+        await push_handler.generate_batch(
+            str(app_root_dir), push_handler._get_rsync_path()
+        )
 
     mock_create_subprocess.assert_awaited_once()
     mock_proc.communicate.assert_awaited_once()
@@ -198,12 +182,14 @@ async def test_generate_batch_rsync_fails(
 @pytest.mark.asyncio
 async def test_rsync_handler_initialization_rsync_not_found():
     """Test PushHandler initialization fails if rsync executable is not found by shutil.which."""
-    with patch(
-        "shutil.which", return_value=None
-    ) as mock_which:  # Simulate rsync not found
+    with patch("code_sync_mcp.push_handler.os.path.exists", return_value=False), patch(
+        "code_sync_mcp.push_handler.sys.platform", "darwin"
+    ):
         with pytest.raises(
-            FileNotFoundError,
-            match="rsync executable not found at 'nonexistent_rsync_path'",
+            RuntimeError,
+            match="On macOS, rsync from Homebrew is required. "
+            "Please install it using `brew install rsync`. "
+            "Checked path: /opt/homebrew/bin/rsync",
         ):
-            PushHandler(rsync_path="nonexistent_rsync_path")
-        mock_which.assert_called_once_with("nonexistent_rsync_path")
+            handler = PushHandler()
+            await handler.handle_push_request(None, None, None)

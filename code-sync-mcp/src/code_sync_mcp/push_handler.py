@@ -1,7 +1,6 @@
 import asyncio
 import logging
 import os
-import shutil
 import sys
 import tempfile
 from pathlib import Path
@@ -16,28 +15,6 @@ from code_sync_mcp.pb import ws_pb2
 log = logging.getLogger(__name__)
 
 PushStatusPb = ws_pb2.PushResponse.PushStatus
-
-# Determine RSYNC_PATH
-# On macOS, prefer Homebrew's rsync if available, otherwise error.
-# On other POSIX systems, use system rsync.
-# Other OSes are currently unsupported for rsync.
-if sys.platform == "darwin":
-    homebrew_rsync_path = "/opt/homebrew/bin/rsync"
-    if os.path.exists(homebrew_rsync_path):
-        RSYNC_PATH = homebrew_rsync_path
-    else:
-        # Consistent with original behavior, raise if Homebrew rsync is not found on macOS
-        raise RuntimeError(
-            "On macOS, rsync from Homebrew is required. "
-            "Please install it using `brew install rsync`. "
-            f"Checked path: {homebrew_rsync_path}"
-        )
-elif os.name == "posix":
-    RSYNC_PATH = "rsync"  # For other POSIX systems (e.g., Linux)
-else:
-    raise OSError(
-        f"Unsupported OS for rsync operations: {os.name}, platform: {sys.platform}"
-    )
 
 
 class PushFuture(Future):
@@ -59,16 +36,6 @@ class PushHandler:
     Handles the generation of rsync batch files.
     """
 
-    def __init__(self, rsync_path: str = RSYNC_PATH):
-        self.rsync_path = rsync_path
-        # Verify that the rsync executable is found at the determined path
-        if not shutil.which(self.rsync_path):
-            raise FileNotFoundError(
-                f"rsync executable not found at '{self.rsync_path}'. "
-                "Please ensure rsync is installed and in your PATH, "
-                "or the path is correctly specified."
-            )
-
     async def handle_push_request(
         self,
         websocket: websockets.ClientConnection,
@@ -78,6 +45,7 @@ class PushHandler:
         """
         Handles a push request from the client.
         """
+        rsync_path = self._get_rsync_path()
         log.info(f"Starting push process for future {id(push_future)}...")
 
         # Ensure future isn't already done (e.g. cancelled during close)
@@ -88,7 +56,7 @@ class PushHandler:
             return
 
         # Generate rsync batch data using the new handler
-        batch_data = await self.generate_batch(app_root)
+        batch_data = await self.generate_batch(app_root, rsync_path)
         if not batch_data:
             log.info(
                 "No changes detected by rsync (empty batch file from generator). Push considered successful."
@@ -126,6 +94,31 @@ class PushHandler:
             if not push_future.done():
                 push_future.set_exception(RuntimeError(err_msg))
 
+    def _get_rsync_path(self) -> str:
+        """
+        Returns the path to the rsync executable.
+        """
+        # On macOS, prefer Homebrew's rsync if available, otherwise error.
+        # On other POSIX systems, use system rsync.
+        # Other OSes are currently unsupported for rsync.
+        if sys.platform == "darwin":
+            homebrew_rsync_path = "/opt/homebrew/bin/rsync"
+            if os.path.exists(homebrew_rsync_path):
+                return homebrew_rsync_path
+            else:
+                # Consistent with original behavior, raise if Homebrew rsync is not found on macOS
+                raise RuntimeError(
+                    "On macOS, rsync from Homebrew is required. "
+                    "Please install it using `brew install rsync`. "
+                    f"Checked path: {homebrew_rsync_path}"
+                )
+        elif os.name == "posix":
+            return "rsync"  # For other POSIX systems (e.g., Linux)
+        else:
+            raise OSError(
+                f"Unsupported OS for rsync operations: {os.name}, platform: {sys.platform}"
+            )
+
     def _create_push_message(
         self, push_future: PushFuture, batch_data: bytes
     ) -> ws_pb2.PushMessage:
@@ -139,7 +132,7 @@ class PushHandler:
             ),
         )
 
-    async def generate_batch(self, app_root: str) -> bytes:
+    async def generate_batch(self, app_root: str, rsync_path: str) -> bytes:
         """
         Generates an rsync batch file by comparing the app_root directory
         with an empty temporary directory.
@@ -165,7 +158,7 @@ class PushHandler:
             batch_file_path = temp_base_dir / "rsync_batch.bin"
 
             rsync_cmd = [
-                self.rsync_path,
+                rsync_path,
                 "-a",  # Archive mode (recursive, preserves symlinks, permissions, times, group, owner)
                 "--delete",  # Delete extraneous files from destination directory
                 "--checksum",  # Skip based on checksum, not modification time & size

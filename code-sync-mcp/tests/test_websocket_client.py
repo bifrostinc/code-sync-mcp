@@ -413,7 +413,9 @@ async def test_send_push_request_success(
     await test_client._dispatch_request_handler(mock_ws, push_future)
 
     # Verify RsyncBatchGenerator was called
-    mock_push_handler.generate_batch.assert_awaited_once_with(test_client.app_root)
+    mock_push_handler.generate_batch.assert_awaited_once_with(
+        test_client.app_root, mock_push_handler._get_rsync_path()
+    )
 
     mock_ws.send.assert_awaited_once_with(
         ws_pb2.WebsocketMessage(
@@ -449,7 +451,9 @@ async def test_send_push_request_no_changes(
     await test_client._dispatch_request_handler(mock_ws, push_future)
 
     # Verify RsyncHandler was called
-    mock_push_handler.generate_batch.assert_awaited_once_with(test_client.app_root)
+    mock_push_handler.generate_batch.assert_awaited_once_with(
+        test_client.app_root, mock_push_handler._get_rsync_path()
+    )
 
     # Verify data was NOT sent
     mock_ws.send.assert_not_awaited()
@@ -479,7 +483,9 @@ async def test_send_push_request_rsync_failure(
         await test_client._dispatch_request_handler(mock_ws, push_future)
 
     # Verify RsyncHandler was called
-    mock_push_handler.generate_batch.assert_awaited_once_with(test_client.app_root)
+    mock_push_handler.generate_batch.assert_awaited_once_with(
+        test_client.app_root, mock_push_handler._get_rsync_path()
+    )
 
     # Verify nothing was sent
     mock_ws.send.assert_not_awaited()
@@ -505,7 +511,9 @@ async def test_send_push_request_recv_timeout(
         await test_client._dispatch_request_handler(mock_ws, push_future)
 
     # Verify RsyncHandler, send occurred
-    mock_push_handler.generate_batch.assert_awaited_once_with(test_client.app_root)
+    mock_push_handler.generate_batch.assert_awaited_once_with(
+        test_client.app_root, mock_push_handler._get_rsync_path()
+    )
     mock_ws.send.assert_awaited_once_with(
         ws_pb2.WebsocketMessage(
             message_type=ws_pb2.WebsocketMessage.MessageType.PUSH_REQUEST,
@@ -542,7 +550,9 @@ async def test_send_push_request_recv_connection_closed(
     assert push_future.exception() is not None
 
     # Verify RsyncHandler, send occurred
-    mock_push_handler.generate_batch.assert_awaited_once_with(test_client.app_root)
+    mock_push_handler.generate_batch.assert_awaited_once_with(
+        test_client.app_root, mock_push_handler._get_rsync_path()
+    )
     mock_ws.send.assert_awaited_once_with(
         ws_pb2.WebsocketMessage(
             message_type=ws_pb2.WebsocketMessage.MessageType.PUSH_REQUEST,

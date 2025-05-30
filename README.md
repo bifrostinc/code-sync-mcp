@@ -139,7 +139,6 @@ Once set up, use the `push_changes` tool in your editor to sync your local code 
 - See changes immediately reflected in your remote staging environment
 - Debug, iterate, and test—all without leaving your local editor
 
-
 ## Architecture Deep Dive
 
 The system has four main components:
@@ -179,14 +178,73 @@ The system has four main components:
 - **Multiple remote environments**: Each developer can target their own remote staging
 - **Production-like testing**: Test in environments that match production exactly
 
+# Local Demo (For Testing)
 
-## Local Demo (For Testing)
+## Prerequisites
 
-- Clone this repo
-- Run `docker-compose up` (simulates a remote environment locally)
-- Configure Cursor with the local proxy settings
-- Make changes to files in `demo-app/` and push them!
+Before running the local demo, ensure you have the following installed:
 
-The demo app will immediately reflect your changes. **In real usage, the proxy and sidecar would be running in your remote infrastructure instead of locally.**
+- **MCP Client**: Install [Cursor](https://www.cursor.com/) for this demo
+- **Rsync** (version 3.4.1 or newer):
+  - **macOS**: `brew install rsync && rsync --version`
+  - **Other platforms**: Verify your version with `rsync --version` and upgrade if needed
 
+## Setup and Configuration
 
+### 1. Clone and Start Services
+
+```bash
+# Clone the repository
+git clone https://github.com/bifrostinc/code-sync-mcp.git
+
+# Start the local environment
+docker-compose up
+```
+
+### 2. Open Project in Cursor
+
+```bash
+cursor ./demo-app
+```
+
+### 3. Configure MCP Server
+
+Add the following configuration to your Cursor MCP settings:
+
+```json
+{
+  "mcpServers": {
+    "code-sync": {
+      "command": "uvx code-sync-mcp",
+      "env": {
+        "UV_PYTHON": "3.13",
+        "BIFROST_API_KEY": "test-secret-key",
+        "BIFROST_WS_API_URL": "ws://localhost:8000",
+        "BIFROST_API_URL": "http://localhost:8000"
+      }
+    }
+  }
+}
+```
+
+## Testing the Demo
+
+1. **Make a code change** in `demo-app/app.py` (try adding an Exception to the health check)
+
+2. **Deploy your changes** by typing in the Cursor chat window:
+
+   ```
+   deploy these changes
+   ```
+
+   Example:
+
+   ![Cursor Demo Screenshot](images/demo-cursor.png)
+
+3. **Observe the results**:
+
+   - Check the logs for deployment activity
+   - Visit [http://localhost:8080/health](http://localhost:8080/health) to see the updated service
+   - Note any errors that may occur during deployment
+
+**Real Usage**: In a real deployment, the proxy and sidecar components would run in your remote infrastructure rather than locally. This demo simulates that environment on your local machine for testing purposes.
