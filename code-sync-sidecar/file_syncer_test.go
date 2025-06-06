@@ -17,6 +17,7 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/protobuf/proto"
 
 	"github.com/bifrostinc/code-sync-sidecar/pb"
 )
@@ -66,25 +67,42 @@ func helperCommandContext(ctx context.Context, command string, args ...string) *
 
 var upgrader = websocket.Upgrader{}
 
-func socketHandler(w http.ResponseWriter, r *http.Request) {
+// mockWebsocketServer captures messages sent to the websocket
+type mockWebsocketServer struct {
+	messages chan []byte
+	conn     *websocket.Conn
+}
+
+func (m *mockWebsocketServer) handler(w http.ResponseWriter, r *http.Request) {
 	// Upgrade our raw HTTP connection to a websocket based one
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Print("Error during connection upgradation:", err)
 		return
 	}
+	m.conn = conn
 	defer conn.Close()
+
+	// Read messages sent to the websocket
+	for {
+		_, message, err := conn.ReadMessage()
+		if err != nil {
+			break // Connection closed or error
+		}
+		m.messages <- message
+	}
 }
 
-func newMockWebsocket(t *testing.T) *websocket.Conn {
-	s := httptest.NewServer(http.HandlerFunc(socketHandler))
+func newMockWebsocket(t *testing.T) (*websocket.Conn, *mockWebsocketServer) {
+	mockServer := &mockWebsocketServer{messages: make(chan []byte, 100)}
+	s := httptest.NewServer(http.HandlerFunc(mockServer.handler))
 	defer s.Close()
 	wsURL := "ws" + strings.TrimPrefix(s.URL, "http")
 	c, _, err := websocket.DefaultDialer.Dial(wsURL, nil)
 	if err != nil {
 		t.Error(err)
 	}
-	return c
+	return c, mockServer
 }
 
 // TestHelperProcess isn't a real test. It's used as a helper process
@@ -310,46 +328,52 @@ func TestApplyRsyncBatch(t *testing.T) {
 		mockFinderErr   error  // Error for mockProcessFinder.FindProcess
 		mockSignalErr   error  // Error for mockProcess.Signal
 		expectSignal    bool   // Whether SIGHUP is expected
+		expectResponse  bool   // Whether a message is expected to be sent to the websocket
 		expectedErr     string // Expected error string from applyRsyncBatch, empty for success
 	}{
 		{
-			name:         "empty batch data",
-			batchData:    []byte{},
-			expectSignal: false, // No signal sent for empty batch
-			expectedErr:  "",
+			name:           "empty batch data",
+			batchData:      []byte{},
+			expectSignal:   false, // No signal sent for empty batch
+			expectResponse: false, // No message sent for empty batch
+			expectedErr:    "",
 		},
 		{
-			name:         "valid batch data, rsync success",
-			batchData:    []byte("fake-rsync-batch-data"),
-			expectSignal: true,
-			expectedErr:  "",
+			name:           "valid batch data, rsync success",
+			batchData:      []byte("fake-rsync-batch-data"),
+			expectSignal:   true,
+			expectResponse: true,
+			expectedErr:    "",
 		},
 		{
 			name:            "valid batch data, rsync command fails",
 			batchData:       []byte("trigger-fail"),
 			rsyncShouldFail: true,
 			expectSignal:    false, // No signal if rsync fails
+			expectResponse:  true,  // Message is sent for failed rsync
 			expectedErr:     "rsync command failed: exit status 1",
 		},
 		{
-			name:          "rsync success, find process fails",
-			batchData:     []byte("find-fail-data"),
-			mockFinderErr: os.ErrNotExist,
-			expectSignal:  false,                 // Signal sending fails
-			expectedErr:   "file does not exist", // applyRsyncBatch succeeds, but signal fails
+			name:           "rsync success, find process fails",
+			batchData:      []byte("find-fail-data"),
+			mockFinderErr:  os.ErrNotExist,
+			expectSignal:   false,                 // Signal sending fails
+			expectResponse: true,                  // Message is sent for failed signal
+			expectedErr:    "file does not exist", // applyRsyncBatch succeeds, but signal fails
 		},
 		{
-			name:          "rsync success, signal process fails",
-			batchData:     []byte("signal-fail-data"),
-			mockSignalErr: os.ErrPermission,
-			expectSignal:  true, // Attempted, but failed
-			expectedErr:   "permission denied",
+			name:           "rsync success, signal process fails",
+			batchData:      []byte("signal-fail-data"),
+			mockSignalErr:  os.ErrPermission,
+			expectSignal:   true, // Attempted, but failed
+			expectResponse: true, // Message is sent for failed signal
+			expectedErr:    "permission denied",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-
+			pushID := "test-push-id"
 			testSpecificDir := tmpDir
 
 			// Setup mock process finder for this test case
@@ -368,7 +392,7 @@ func TestApplyRsyncBatch(t *testing.T) {
 			err = os.WriteFile(filepath.Join(launcherDir, "launcher.pid"), []byte("12345"), 0644)
 			require.NoError(t, err)
 
-			conn := newMockWebsocket(t)
+			conn, mockServer := newMockWebsocket(t)
 			rw := &FileSyncer{
 				targetSyncDir: testSpecificDir,
 				processFinder: mockFinder,
@@ -396,7 +420,7 @@ func TestApplyRsyncBatch(t *testing.T) {
 			defer func() { execCommand = originalExecCommand }()
 
 			// Run the function under test
-			err := rw.handlePushRequest(&pb.PushMessage{BatchFile: tt.batchData})
+			err := rw.handlePushRequest(&pb.PushMessage{PushId: pushID, BatchFile: tt.batchData})
 
 			// Check error
 			if tt.expectedErr != "" {
@@ -417,6 +441,40 @@ func TestApplyRsyncBatch(t *testing.T) {
 				// If no signal was expected, ensure no SIGHUP was recorded (unless lookup failed)
 				if found && tt.mockFinderErr == nil && tt.mockSignalErr == nil {
 					assert.NotContains(t, proc.signalCalls, syscall.SIGHUP, "SIGHUP signal should NOT have been sent")
+				}
+			}
+
+			// Allow some time for websocket message to be sent and received
+			time.Sleep(50 * time.Millisecond)
+
+			if tt.expectResponse {
+				var wsMessage pb.WebsocketMessage
+			waitLoop:
+				for {
+					select {
+					case message := <-mockServer.messages:
+						err2 := proto.Unmarshal(message, &wsMessage)
+						require.NoError(t, err2, "Failed to unmarshal websocket message")
+						break waitLoop
+					case <-time.After(1 * time.Second):
+						t.Fatal("Timed out waiting for websocket message")
+					}
+				}
+
+				// Verify it's a push response
+				assert.Equal(t, pb.WebsocketMessage_PUSH_RESPONSE, wsMessage.MessageType, "Message type should be PUSH_RESPONSE")
+				pushResponse := wsMessage.GetPushResponse()
+				require.NotNil(t, pushResponse, "Push response should not be nil")
+
+				// Verify the push ID matches
+				assert.Equal(t, pushID, pushResponse.GetPushId(), "Push ID should match")
+				if tt.expectedErr != "" {
+					assert.Equal(t, pb.PushResponse_FAILED, pushResponse.GetStatus(), "Status should be FAILED for error cases")
+					assert.NotEmpty(t, pushResponse.GetErrorMessage(), "Error message should be provided for failed cases")
+					assert.Contains(t, pushResponse.GetErrorMessage(), tt.expectedErr, "Error message should contain expected error")
+				} else {
+					assert.Equal(t, pb.PushResponse_COMPLETED, pushResponse.GetStatus(), "Status should be COMPLETED for successful cases")
+					assert.Empty(t, pushResponse.GetErrorMessage(), "Error message should be empty for successful cases")
 				}
 			}
 
