@@ -197,6 +197,7 @@ type PushResponse struct {
 	state         protoimpl.MessageState  `protogen:"open.v1"`
 	Status        PushResponse_PushStatus `protobuf:"varint,1,opt,name=status,proto3,enum=PushResponse_PushStatus" json:"status,omitempty"`
 	ErrorMessage  string                  `protobuf:"bytes,2,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`
+	PushId        string                  `protobuf:"bytes,3,opt,name=push_id,json=pushId,proto3" json:"push_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -241,6 +242,13 @@ func (x *PushResponse) GetStatus() PushResponse_PushStatus {
 func (x *PushResponse) GetErrorMessage() string {
 	if x != nil {
 		return x.ErrorMessage
+	}
+	return ""
+}
+
+func (x *PushResponse) GetPushId() string {
+	if x != nil {
+		return x.PushId
 	}
 	return ""
 }
@@ -345,10 +353,11 @@ const file_ws_proto_rawDesc = "" +
 	"\n" +
 	"batch_file\x18\x02 \x01(\fR\tbatchFile\x12\x1b\n" +
 	"\tcode_diff\x18\x03 \x01(\tR\bcodeDiff\x12-\n" +
-	"\x12change_description\x18\x04 \x01(\tR\x11changeDescription\"\xb9\x01\n" +
+	"\x12change_description\x18\x04 \x01(\tR\x11changeDescription\"\xd2\x01\n" +
 	"\fPushResponse\x120\n" +
 	"\x06status\x18\x01 \x01(\x0e2\x18.PushResponse.PushStatusR\x06status\x12#\n" +
-	"\rerror_message\x18\x02 \x01(\tR\ferrorMessage\"R\n" +
+	"\rerror_message\x18\x02 \x01(\tR\ferrorMessage\x12\x17\n" +
+	"\apush_id\x18\x03 \x01(\tR\x06pushId\"R\n" +
 	"\n" +
 	"PushStatus\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12\v\n" +

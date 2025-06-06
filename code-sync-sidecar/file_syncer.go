@@ -230,16 +230,7 @@ func (rw *FileSyncer) handlePushRequest(pushMsg *pb.PushMessage) error {
 	if err := rw.applyRsyncBatch(batchData); err != nil {
 		log.Error("Failed to apply rsync batch", zap.Error(err))
 		// Send PushResponse with FAILED status
-		responseMsg := &pb.WebsocketMessage{
-			MessageType: pb.WebsocketMessage_PUSH_RESPONSE,
-			Message: &pb.WebsocketMessage_PushResponse{
-				PushResponse: &pb.PushResponse{
-					Status:       pb.PushResponse_FAILED,
-					ErrorMessage: fmt.Sprintf("Push application failed: %v", err),
-				},
-			},
-		}
-		rw.sendProtoMessage(responseMsg)
+		rw.sendProtoMessage(buildPushResponse(pushID, pb.PushResponse_FAILED, fmt.Sprintf("Push application failed: %v", err)))
 		return fmt.Errorf("push application failed: %w", err)
 	}
 
@@ -262,28 +253,12 @@ func (rw *FileSyncer) handlePushRequest(pushMsg *pb.PushMessage) error {
 
 	if err := sendSignalToLauncher(rw.targetSyncDir, rw.processFinder); err != nil {
 		log.Error("Failed to send SIGHUP", zap.Error(err))
-		// Send PushResponse with FAILED status (SIGHUP failure)
-		rw.sendProtoMessage(&pb.WebsocketMessage{
-			MessageType: pb.WebsocketMessage_PUSH_RESPONSE,
-			Message: &pb.WebsocketMessage_PushResponse{
-				PushResponse: &pb.PushResponse{
-					Status:       pb.PushResponse_FAILED,
-					ErrorMessage: fmt.Sprintf("Failed to send SIGHUP: %v", err),
-				},
-			},
-		})
+		rw.sendProtoMessage(buildPushResponse(pushID, pb.PushResponse_FAILED, fmt.Sprintf("Failed to send SIGHUP: %v", err)))
 		return fmt.Errorf("failed to send SIGHUP: %w", err)
 	}
 
 	log.Info("SIGHUP sent successfully. Sending ACK to proxy.")
-	rw.sendProtoMessage(&pb.WebsocketMessage{
-		MessageType: pb.WebsocketMessage_PUSH_RESPONSE,
-		Message: &pb.WebsocketMessage_PushResponse{
-			PushResponse: &pb.PushResponse{
-				Status: pb.PushResponse_COMPLETED,
-			},
-		},
-	})
+	rw.sendProtoMessage(buildPushResponse(pushID, pb.PushResponse_COMPLETED, ""))
 
 	return nil
 }
@@ -405,5 +380,18 @@ func (rw *FileSyncer) sendProtoMessage(msg proto.Message) {
 			zap.String("messageType", fmt.Sprintf("%T", msg)),
 			zap.Int("sizeBytes", len(data)),
 		)
+	}
+}
+
+func buildPushResponse(pushID string, status pb.PushResponse_PushStatus, errorMessage string) *pb.WebsocketMessage {
+	return &pb.WebsocketMessage{
+		MessageType: pb.WebsocketMessage_PUSH_RESPONSE,
+		Message: &pb.WebsocketMessage_PushResponse{
+			PushResponse: &pb.PushResponse{
+				Status:       status,
+				ErrorMessage: errorMessage,
+				PushId:       pushID,
+			},
+		},
 	}
 }

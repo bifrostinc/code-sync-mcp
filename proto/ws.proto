@@ -19,6 +19,7 @@ message PushResponse {
 
     PushStatus status = 1;
     string error_message = 2;
+    string push_id = 3;
 }
 
 message WebsocketMessage {
