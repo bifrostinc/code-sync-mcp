@@ -2,13 +2,16 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	stdlog "log"
+	"net/http"
 	"os"
 	"os/signal"
 	"path/filepath"
 	"syscall"
+	"time"
 
 	"go.uber.org/zap"
 
@@ -78,6 +81,12 @@ func main() {
 	log.Info("Created sidecar and launcher directories")
 	if err := copyBinaries(filesDir); err != nil {
 		log.Fatal("Failed to copy binaries", zap.Error(err))
+	}
+
+	// Fetch and write database environment variables
+	if err := writeDatabaseEnvFile(apiURL, apiKey, deploymentID, filesDir); err != nil {
+		log.Warn("Failed to write database environment file", zap.Error(err))
+		// Don't fail - let the app start without database URLs
 	}
 
 	// Create a context that will be canceled on SIGTERM/SIGINT
@@ -178,5 +187,87 @@ func copyBinaries(filesDir string) error {
 		}
 	}
 	log.Info("Successfully set up binaries", zap.String("targetDir", filesDir))
+	return nil
+}
+
+// DatabaseEnvVar represents a database environment variable
+type DatabaseEnvVar struct {
+	EnvVarName     string `json:"env_var_name"`
+	ConnectionURI  string `json:"connection_uri"`
+}
+
+// writeDatabaseEnvFile fetches database connection URIs from the API and writes them to an env file
+func writeDatabaseEnvFile(apiURL, apiKey, deploymentID, filesDir string) error {
+	log.Info("Fetching database environment variables", 
+		zap.String("deploymentID", deploymentID),
+		zap.String("apiURL", apiURL))
+
+	// Build the API endpoint URL
+	url := fmt.Sprintf("%s/api/v1/deployments/%s/database-env-vars", apiURL, deploymentID)
+	
+	// Create HTTP client with timeout
+	client := &http.Client{
+		Timeout: 10 * time.Second,
+	}
+	
+	// Create request with API key header
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return fmt.Errorf("failed to create request: %w", err)
+	}
+	req.Header.Set("X-Api-Key", apiKey)
+	
+	// Make the request
+	resp, err := client.Do(req)
+	if err != nil {
+		return fmt.Errorf("failed to fetch database env vars: %w", err)
+	}
+	defer resp.Body.Close()
+	
+	// Check response status
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("API request failed with status %d: %s", resp.StatusCode, string(body))
+	}
+	
+	// Parse response
+	var envVars []DatabaseEnvVar
+	if err := json.NewDecoder(resp.Body).Decode(&envVars); err != nil {
+		return fmt.Errorf("failed to decode response: %w", err)
+	}
+	
+	// If no databases, don't create the file
+	if len(envVars) == 0 {
+		log.Info("No database environment variables to inject")
+		return nil
+	}
+	
+	// Write to env.sh file
+	envFile := filepath.Join(getSidecarDir(filesDir), "env.sh")
+	f, err := os.Create(envFile)
+	if err != nil {
+		return fmt.Errorf("failed to create env file: %w", err)
+	}
+	defer f.Close()
+	
+	// Write each environment variable
+	for _, envVar := range envVars {
+		if _, err := fmt.Fprintf(f, "export %s=\"%s\"\n", envVar.EnvVarName, envVar.ConnectionURI); err != nil {
+			return fmt.Errorf("failed to write env var %s: %w", envVar.EnvVarName, err)
+		}
+		log.Info("Added database environment variable", 
+			zap.String("envVar", envVar.EnvVarName),
+			zap.String("envFile", envFile))
+	}
+	
+	// Make file readable by all
+	if err := os.Chmod(envFile, 0644); err != nil {
+		log.Warn("Failed to set env file permissions", zap.Error(err))
+	}
+	
+	log.Info("Successfully wrote database environment variables", 
+		zap.String("envFile", envFile),
+		zap.Int("count", len(envVars)))
+	
 	return nil
 }

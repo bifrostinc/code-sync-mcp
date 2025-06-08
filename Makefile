@@ -13,6 +13,7 @@ DIST_DIR := dist
 help:
 	@echo "Available commands:"
 	@echo "  sidecar-docker           - Build and push sidecar image to Docker"
+	@echo "  sidecar-local            - Build sidecar image locally for docker-compose"
 	@echo "  build-rsync-static       - Build static rsync binaries for amd64 and arm64"
 	@echo "  mcp-pypi-build          - Build Python package for PyPI"
 	@echo "  mcp-pypi-test           - Upload package to TestPyPI"
@@ -63,6 +64,11 @@ sidecar-docker: build-rsync-static setup-buildx
 	$(eval IMG := $(DOCKER_IMAGE):$(IMAGE_TAG)) # Using generic IMAGE_TAG
 	docker buildx build --no-cache -f code-sync-sidecar/Dockerfile --platform $(SUPPORTED_PLATFORMS) -t $(IMG) --push .
 	@echo "Sidecar image successfully pushed to $(IMG)"
+
+sidecar-local: build-rsync-static-amd64
+	@echo "Building sidecar image for local use (linux/amd64 platform)..."
+	docker build --no-cache --platform linux/amd64 -f code-sync-sidecar/Dockerfile -t $(DOCKER_IMAGE):$(IMAGE_TAG) .
+	@echo "Sidecar image built locally as $(DOCKER_IMAGE):$(IMAGE_TAG)"
 
 # MCP Server PyPI related commands
 mcp-pypi-clean:

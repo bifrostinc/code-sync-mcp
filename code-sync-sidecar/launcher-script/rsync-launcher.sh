@@ -122,6 +122,15 @@ start_app() {
         unset BIFROST_PUSH_ID
     fi
 
+    # Source database environment variables if they exist
+    DATABASE_ENV_FILE="${SIDECAR_DIR}/env.sh"
+    if [ -f "$DATABASE_ENV_FILE" ]; then
+        echo "[code-sync] Sourcing database environment variables from $DATABASE_ENV_FILE"
+        . "$DATABASE_ENV_FILE"
+    else
+        echo "[code-sync] No database environment file found at $DATABASE_ENV_FILE"
+    fi
+
     # Kill previous instance if it exists
     if [ -f "$APP_PID_FILE" ]; then
         old_pid=$(cat "$APP_PID_FILE")
