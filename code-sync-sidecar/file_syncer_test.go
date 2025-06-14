@@ -307,9 +307,9 @@ func TestBuildWebSocketURL(t *testing.T) {
 	}
 }
 
-// TestApplyRsyncBatch tests the rsync batch application logic.
+// TestApplyPushMessage tests the push message handling logic.
 // It uses a helper process to mock the actual rsync command execution.
-func TestApplyRsyncBatch(t *testing.T) {
+func TestApplyPushMessage(t *testing.T) {
 	tmpDir, err := os.MkdirTemp("", "rsync_apply_test")
 	require.NoError(t, err)
 	defer os.RemoveAll(tmpDir)
@@ -324,30 +324,42 @@ func TestApplyRsyncBatch(t *testing.T) {
 	tests := []struct {
 		name            string
 		batchData       []byte
+		envVars         map[string]string
 		rsyncShouldFail bool   // Tells the helper process to exit with non-zero status
 		mockFinderErr   error  // Error for mockProcessFinder.FindProcess
 		mockSignalErr   error  // Error for mockProcess.Signal
 		expectSignal    bool   // Whether SIGHUP is expected
 		expectResponse  bool   // Whether a message is expected to be sent to the websocket
-		expectedErr     string // Expected error string from applyRsyncBatch, empty for success
+		expectedErr     string // Expected error string from handlePushRequest, empty for success
 	}{
 		{
-			name:           "empty batch data",
+			name:           "empty batch data with env vars",
 			batchData:      []byte{},
-			expectSignal:   false, // No signal sent for empty batch
-			expectResponse: false, // No message sent for empty batch
+			envVars:        map[string]string{"TEST_VAR": "test_value", "DB_URL": "postgres://localhost/test"},
+			expectSignal:   true,  // Signal sent even for env-only updates
+			expectResponse: true,  // Message sent for successful env update
 			expectedErr:    "",
 		},
 		{
-			name:           "valid batch data, rsync success",
-			batchData:      []byte("fake-rsync-batch-data"),
+			name:           "env vars only, no batch data",
+			batchData:      nil,
+			envVars:        map[string]string{"API_KEY": "secret123"},
 			expectSignal:   true,
 			expectResponse: true,
 			expectedErr:    "",
 		},
 		{
-			name:            "valid batch data, rsync command fails",
+			name:           "valid batch data with env vars, rsync success",
+			batchData:      []byte("fake-rsync-batch-data"),
+			envVars:        map[string]string{"BUILD_ID": "12345"},
+			expectSignal:   true,
+			expectResponse: true,
+			expectedErr:    "",
+		},
+		{
+			name:            "valid batch data with env vars, rsync command fails",
 			batchData:       []byte("trigger-fail"),
+			envVars:         map[string]string{"TEST_VAR": "value"},
 			rsyncShouldFail: true,
 			expectSignal:    false, // No signal if rsync fails
 			expectResponse:  true,  // Message is sent for failed rsync
@@ -356,14 +368,16 @@ func TestApplyRsyncBatch(t *testing.T) {
 		{
 			name:           "rsync success, find process fails",
 			batchData:      []byte("find-fail-data"),
+			envVars:        map[string]string{"VAR": "value"},
 			mockFinderErr:  os.ErrNotExist,
 			expectSignal:   false,                 // Signal sending fails
 			expectResponse: true,                  // Message is sent for failed signal
-			expectedErr:    "file does not exist", // applyRsyncBatch succeeds, but signal fails
+			expectedErr:    "file does not exist", // handlePushRequest succeeds until signal fails
 		},
 		{
 			name:           "rsync success, signal process fails",
 			batchData:      []byte("signal-fail-data"),
+			envVars:        map[string]string{"VAR": "value"},
 			mockSignalErr:  os.ErrPermission,
 			expectSignal:   true, // Attempted, but failed
 			expectResponse: true, // Message is sent for failed signal
@@ -397,6 +411,7 @@ func TestApplyRsyncBatch(t *testing.T) {
 				targetSyncDir: testSpecificDir,
 				processFinder: mockFinder,
 				conn:          conn,
+				envManager:    NewEnvironmentManager(testSpecificDir),
 			}
 			defer conn.Close()
 
@@ -420,7 +435,11 @@ func TestApplyRsyncBatch(t *testing.T) {
 			defer func() { execCommand = originalExecCommand }()
 
 			// Run the function under test
-			err := rw.handlePushRequest(&pb.PushMessage{PushId: pushID, BatchFile: tt.batchData})
+			err := rw.handlePushRequest(&pb.PushMessage{
+				PushId: pushID, 
+				BatchFile: tt.batchData,
+				EnvironmentVariables: tt.envVars,
+			})
 
 			// Check error
 			if tt.expectedErr != "" {
@@ -475,6 +494,25 @@ func TestApplyRsyncBatch(t *testing.T) {
 				} else {
 					assert.Equal(t, pb.PushResponse_COMPLETED, pushResponse.GetStatus(), "Status should be COMPLETED for successful cases")
 					assert.Empty(t, pushResponse.GetErrorMessage(), "Error message should be empty for successful cases")
+				}
+			}
+
+			// Verify environment variables were written correctly
+			if len(tt.envVars) > 0 {
+				envFilePath := rw.envManager.GetEnvFilePath()
+				envContent, err := os.ReadFile(envFilePath)
+				require.NoError(t, err, "Should be able to read environment file")
+				
+				envStr := string(envContent)
+				for key, value := range tt.envVars {
+					expectedLine := fmt.Sprintf("export %s=%s", key, value)
+					// For simple values without special characters, they won't be quoted
+					if !strings.Contains(value, " ") && !strings.Contains(value, "'") && !strings.Contains(value, "\"") {
+						assert.Contains(t, envStr, expectedLine, "Environment file should contain expected variable")
+					} else {
+						// For complex values, just check the key is present
+						assert.Contains(t, envStr, fmt.Sprintf("export %s=", key), "Environment file should contain variable key")
+					}
 				}
 			}
 

@@ -126,13 +126,14 @@ func (WebsocketMessage_MessageType) EnumDescriptor() ([]byte, []int) {
 }
 
 type PushMessage struct {
-	state             protoimpl.MessageState `protogen:"open.v1"`
-	PushId            string                 `protobuf:"bytes,1,opt,name=push_id,json=pushId,proto3" json:"push_id,omitempty"`
-	BatchFile         []byte                 `protobuf:"bytes,2,opt,name=batch_file,json=batchFile,proto3" json:"batch_file,omitempty"`
-	CodeDiff          string                 `protobuf:"bytes,3,opt,name=code_diff,json=codeDiff,proto3" json:"code_diff,omitempty"`
-	ChangeDescription string                 `protobuf:"bytes,4,opt,name=change_description,json=changeDescription,proto3" json:"change_description,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	state                protoimpl.MessageState `protogen:"open.v1"`
+	PushId               string                 `protobuf:"bytes,1,opt,name=push_id,json=pushId,proto3" json:"push_id,omitempty"`
+	BatchFile            []byte                 `protobuf:"bytes,2,opt,name=batch_file,json=batchFile,proto3" json:"batch_file,omitempty"`
+	CodeDiff             string                 `protobuf:"bytes,3,opt,name=code_diff,json=codeDiff,proto3" json:"code_diff,omitempty"`
+	ChangeDescription    string                 `protobuf:"bytes,4,opt,name=change_description,json=changeDescription,proto3" json:"change_description,omitempty"`
+	EnvironmentVariables map[string]string      `protobuf:"bytes,5,rep,name=environment_variables,json=environmentVariables,proto3" json:"environment_variables,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *PushMessage) Reset() {
@@ -191,6 +192,13 @@ func (x *PushMessage) GetChangeDescription() string {
 		return x.ChangeDescription
 	}
 	return ""
+}
+
+func (x *PushMessage) GetEnvironmentVariables() map[string]string {
+	if x != nil {
+		return x.EnvironmentVariables
+	}
+	return nil
 }
 
 type PushResponse struct {
@@ -347,13 +355,17 @@ var File_ws_proto protoreflect.FileDescriptor
 
 const file_ws_proto_rawDesc = "" +
 	"\n" +
-	"\bws.proto\"\x91\x01\n" +
+	"\bws.proto\"\xb7\x02\n" +
 	"\vPushMessage\x12\x17\n" +
 	"\apush_id\x18\x01 \x01(\tR\x06pushId\x12\x1d\n" +
 	"\n" +
 	"batch_file\x18\x02 \x01(\fR\tbatchFile\x12\x1b\n" +
 	"\tcode_diff\x18\x03 \x01(\tR\bcodeDiff\x12-\n" +
-	"\x12change_description\x18\x04 \x01(\tR\x11changeDescription\"\xd2\x01\n" +
+	"\x12change_description\x18\x04 \x01(\tR\x11changeDescription\x12[\n" +
+	"\x15environment_variables\x18\x05 \x03(\v2&.PushMessage.EnvironmentVariablesEntryR\x14environmentVariables\x1aG\n" +
+	"\x19EnvironmentVariablesEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xd2\x01\n" +
 	"\fPushResponse\x120\n" +
 	"\x06status\x18\x01 \x01(\x0e2\x18.PushResponse.PushStatusR\x06status\x12#\n" +
 	"\rerror_message\x18\x02 \x01(\tR\ferrorMessage\x12\x17\n" +
@@ -389,24 +401,26 @@ func file_ws_proto_rawDescGZIP() []byte {
 }
 
 var file_ws_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_ws_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_ws_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_ws_proto_goTypes = []any{
 	(PushResponse_PushStatus)(0),      // 0: PushResponse.PushStatus
 	(WebsocketMessage_MessageType)(0), // 1: WebsocketMessage.MessageType
 	(*PushMessage)(nil),               // 2: PushMessage
 	(*PushResponse)(nil),              // 3: PushResponse
 	(*WebsocketMessage)(nil),          // 4: WebsocketMessage
+	nil,                               // 5: PushMessage.EnvironmentVariablesEntry
 }
 var file_ws_proto_depIdxs = []int32{
-	0, // 0: PushResponse.status:type_name -> PushResponse.PushStatus
-	1, // 1: WebsocketMessage.message_type:type_name -> WebsocketMessage.MessageType
-	2, // 2: WebsocketMessage.push_message:type_name -> PushMessage
-	3, // 3: WebsocketMessage.push_response:type_name -> PushResponse
-	4, // [4:4] is the sub-list for method output_type
-	4, // [4:4] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	5, // 0: PushMessage.environment_variables:type_name -> PushMessage.EnvironmentVariablesEntry
+	0, // 1: PushResponse.status:type_name -> PushResponse.PushStatus
+	1, // 2: WebsocketMessage.message_type:type_name -> WebsocketMessage.MessageType
+	2, // 3: WebsocketMessage.push_message:type_name -> PushMessage
+	3, // 4: WebsocketMessage.push_response:type_name -> PushResponse
+	5, // [5:5] is the sub-list for method output_type
+	5, // [5:5] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_ws_proto_init() }
@@ -424,7 +438,7 @@ func file_ws_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_ws_proto_rawDesc), len(file_ws_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   3,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

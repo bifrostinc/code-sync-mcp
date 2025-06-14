@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x08ws.proto\"a\n\x0bPushMessage\x12\x0f\n\x07push_id\x18\x01 \x01(\t\x12\x12\n\nbatch_file\x18\x02 \x01(\x0c\x12\x11\n\tcode_diff\x18\x03 \x01(\t\x12\x1a\n\x12\x63hange_description\x18\x04 \x01(\t\"\xb4\x01\n\x0cPushResponse\x12(\n\x06status\x18\x01 \x01(\x0e\x32\x18.PushResponse.PushStatus\x12\x15\n\rerror_message\x18\x02 \x01(\t\x12\x0f\n\x07push_id\x18\x03 \x01(\t\"R\n\nPushStatus\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x0b\n\x07PENDING\x10\x01\x12\x0f\n\x0bIN_PROGRESS\x10\x02\x12\n\n\x06\x46\x41ILED\x10\x03\x12\r\n\tCOMPLETED\x10\x04\"\xe1\x01\n\x10WebsocketMessage\x12\x33\n\x0cmessage_type\x18\x01 \x01(\x0e\x32\x1d.WebsocketMessage.MessageType\x12$\n\x0cpush_message\x18\x02 \x01(\x0b\x32\x0c.PushMessageH\x00\x12&\n\rpush_response\x18\x03 \x01(\x0b\x32\r.PushResponseH\x00\"?\n\x0bMessageType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x10\n\x0cPUSH_REQUEST\x10\x01\x12\x11\n\rPUSH_RESPONSE\x10\x02\x42\t\n\x07messageB:Z8github.com/bifrostinc/code-sync-mcp/code-sync-sidecar/pbb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x08ws.proto\"\xe5\x01\n\x0bPushMessage\x12\x0f\n\x07push_id\x18\x01 \x01(\t\x12\x12\n\nbatch_file\x18\x02 \x01(\x0c\x12\x11\n\tcode_diff\x18\x03 \x01(\t\x12\x1a\n\x12\x63hange_description\x18\x04 \x01(\t\x12\x45\n\x15\x65nvironment_variables\x18\x05 \x03(\x0b\x32&.PushMessage.EnvironmentVariablesEntry\x1a;\n\x19\x45nvironmentVariablesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xb4\x01\n\x0cPushResponse\x12(\n\x06status\x18\x01 \x01(\x0e\x32\x18.PushResponse.PushStatus\x12\x15\n\rerror_message\x18\x02 \x01(\t\x12\x0f\n\x07push_id\x18\x03 \x01(\t\"R\n\nPushStatus\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x0b\n\x07PENDING\x10\x01\x12\x0f\n\x0bIN_PROGRESS\x10\x02\x12\n\n\x06\x46\x41ILED\x10\x03\x12\r\n\tCOMPLETED\x10\x04\"\xe1\x01\n\x10WebsocketMessage\x12\x33\n\x0cmessage_type\x18\x01 \x01(\x0e\x32\x1d.WebsocketMessage.MessageType\x12$\n\x0cpush_message\x18\x02 \x01(\x0b\x32\x0c.PushMessageH\x00\x12&\n\rpush_response\x18\x03 \x01(\x0b\x32\r.PushResponseH\x00\"?\n\x0bMessageType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x10\n\x0cPUSH_REQUEST\x10\x01\x12\x11\n\rPUSH_RESPONSE\x10\x02\x42\t\n\x07messageB:Z8github.com/bifrostinc/code-sync-mcp/code-sync-sidecar/pbb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -32,14 +32,18 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'ws_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   _globals['DESCRIPTOR']._loaded_options = None
   _globals['DESCRIPTOR']._serialized_options = b'Z8github.com/bifrostinc/code-sync-mcp/code-sync-sidecar/pb'
-  _globals['_PUSHMESSAGE']._serialized_start=12
-  _globals['_PUSHMESSAGE']._serialized_end=109
-  _globals['_PUSHRESPONSE']._serialized_start=112
-  _globals['_PUSHRESPONSE']._serialized_end=292
-  _globals['_PUSHRESPONSE_PUSHSTATUS']._serialized_start=210
-  _globals['_PUSHRESPONSE_PUSHSTATUS']._serialized_end=292
-  _globals['_WEBSOCKETMESSAGE']._serialized_start=295
-  _globals['_WEBSOCKETMESSAGE']._serialized_end=520
-  _globals['_WEBSOCKETMESSAGE_MESSAGETYPE']._serialized_start=446
-  _globals['_WEBSOCKETMESSAGE_MESSAGETYPE']._serialized_end=509
+  _globals['_PUSHMESSAGE_ENVIRONMENTVARIABLESENTRY']._loaded_options = None
+  _globals['_PUSHMESSAGE_ENVIRONMENTVARIABLESENTRY']._serialized_options = b'8\001'
+  _globals['_PUSHMESSAGE']._serialized_start=13
+  _globals['_PUSHMESSAGE']._serialized_end=242
+  _globals['_PUSHMESSAGE_ENVIRONMENTVARIABLESENTRY']._serialized_start=183
+  _globals['_PUSHMESSAGE_ENVIRONMENTVARIABLESENTRY']._serialized_end=242
+  _globals['_PUSHRESPONSE']._serialized_start=245
+  _globals['_PUSHRESPONSE']._serialized_end=425
+  _globals['_PUSHRESPONSE_PUSHSTATUS']._serialized_start=343
+  _globals['_PUSHRESPONSE_PUSHSTATUS']._serialized_end=425
+  _globals['_WEBSOCKETMESSAGE']._serialized_start=428
+  _globals['_WEBSOCKETMESSAGE']._serialized_end=653
+  _globals['_WEBSOCKETMESSAGE_MESSAGETYPE']._serialized_start=579
+  _globals['_WEBSOCKETMESSAGE_MESSAGETYPE']._serialized_end=642
 # @@protoc_insertion_point(module_scope)

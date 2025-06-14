@@ -34,6 +34,7 @@ type FileSyncer struct {
 	conn          *websocket.Conn
 	done          chan struct{}
 	processFinder ProcessFinder
+	envManager    *EnvironmentManager
 }
 
 // NewFileSyncer creates and starts a new FileSyncer.
@@ -53,6 +54,7 @@ func NewFileSyncer(
 		targetSyncDir: targetSyncDir,
 		done:          make(chan struct{}),
 		processFinder: &DefaultProcessFinder{},
+		envManager:    NewEnvironmentManager(targetSyncDir),
 	}
 
 	go rw.run(ctx)
@@ -220,21 +222,32 @@ func (rw *FileSyncer) handlePushRequest(pushMsg *pb.PushMessage) error {
 	}
 	pushID := pushMsg.PushId
 	batchData := pushMsg.BatchFile
+	envVariables := pushMsg.EnvironmentVariables
 
-	if len(batchData) == 0 {
-		log.Info("Received empty batch data. Nothing to apply.")
-		return nil // Not an error, just nothing to do
+	log.Info("Processing push request", 
+		zap.String("pushID", pushID),
+		zap.Int("batchSize", len(batchData)),
+		zap.Int("envVars", len(envVariables)))
+
+	// Update environment variables first (always do this, even if no batch data)
+	if err := rw.envManager.UpdateFromPush(envVariables); err != nil {
+		log.Error("Failed to update environment variables", zap.Error(err))
+		rw.sendProtoMessage(buildPushResponse(pushID, pb.PushResponse_FAILED, fmt.Sprintf("Failed to update environment variables: %v", err)))
+		return fmt.Errorf("failed to update environment variables: %w", err)
 	}
 
-	// Apply the rsync batch
-	if err := rw.applyRsyncBatch(batchData); err != nil {
-		log.Error("Failed to apply rsync batch", zap.Error(err))
-		// Send PushResponse with FAILED status
-		rw.sendProtoMessage(buildPushResponse(pushID, pb.PushResponse_FAILED, fmt.Sprintf("Push application failed: %v", err)))
-		return fmt.Errorf("push application failed: %w", err)
+	// Apply the rsync batch if there is data
+	if len(batchData) > 0 {
+		if err := rw.applyRsyncBatch(batchData); err != nil {
+			log.Error("Failed to apply rsync batch", zap.Error(err))
+			// Send PushResponse with FAILED status
+			rw.sendProtoMessage(buildPushResponse(pushID, pb.PushResponse_FAILED, fmt.Sprintf("Push application failed: %v", err)))
+			return fmt.Errorf("push application failed: %w", err)
+		}
+		log.Info("Rsync batch applied successfully.")
+	} else {
+		log.Info("No batch data to apply, only environment variables updated.")
 	}
-
-	log.Info("Rsync batch applied successfully.")
 
 	// Write pushID to a file for the launcher script, it will get used by the launcher script.
 	launcherDir := getLauncherDir(rw.targetSyncDir)
