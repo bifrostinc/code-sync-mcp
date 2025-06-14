@@ -9,6 +9,7 @@ package pb
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -73,15 +74,422 @@ func (x PushResponse_PushStatus) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use PushResponse_PushStatus.Descriptor instead.
 func (PushResponse_PushStatus) EnumDescriptor() ([]byte, []int) {
-	return file_ws_proto_rawDescGZIP(), []int{1, 0}
+	return file_ws_proto_rawDescGZIP(), []int{2, 0}
+}
+
+type ResponseAssertion_AssertionType int32
+
+const (
+	ResponseAssertion_UNKNOWN       ResponseAssertion_AssertionType = 0
+	ResponseAssertion_STATUS_CODE   ResponseAssertion_AssertionType = 1
+	ResponseAssertion_JSON_PATH     ResponseAssertion_AssertionType = 2
+	ResponseAssertion_HEADER        ResponseAssertion_AssertionType = 3
+	ResponseAssertion_BODY_CONTAINS ResponseAssertion_AssertionType = 4
+)
+
+// Enum value maps for ResponseAssertion_AssertionType.
+var (
+	ResponseAssertion_AssertionType_name = map[int32]string{
+		0: "UNKNOWN",
+		1: "STATUS_CODE",
+		2: "JSON_PATH",
+		3: "HEADER",
+		4: "BODY_CONTAINS",
+	}
+	ResponseAssertion_AssertionType_value = map[string]int32{
+		"UNKNOWN":       0,
+		"STATUS_CODE":   1,
+		"JSON_PATH":     2,
+		"HEADER":        3,
+		"BODY_CONTAINS": 4,
+	}
+)
+
+func (x ResponseAssertion_AssertionType) Enum() *ResponseAssertion_AssertionType {
+	p := new(ResponseAssertion_AssertionType)
+	*p = x
+	return p
+}
+
+func (x ResponseAssertion_AssertionType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ResponseAssertion_AssertionType) Descriptor() protoreflect.EnumDescriptor {
+	return file_ws_proto_enumTypes[1].Descriptor()
+}
+
+func (ResponseAssertion_AssertionType) Type() protoreflect.EnumType {
+	return &file_ws_proto_enumTypes[1]
+}
+
+func (x ResponseAssertion_AssertionType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ResponseAssertion_AssertionType.Descriptor instead.
+func (ResponseAssertion_AssertionType) EnumDescriptor() ([]byte, []int) {
+	return file_ws_proto_rawDescGZIP(), []int{3, 0}
+}
+
+type VariableExtraction_SourceType int32
+
+const (
+	VariableExtraction_UNKNOWN     VariableExtraction_SourceType = 0
+	VariableExtraction_JSON        VariableExtraction_SourceType = 1
+	VariableExtraction_HEADER      VariableExtraction_SourceType = 2
+	VariableExtraction_STATUS_CODE VariableExtraction_SourceType = 3
+)
+
+// Enum value maps for VariableExtraction_SourceType.
+var (
+	VariableExtraction_SourceType_name = map[int32]string{
+		0: "UNKNOWN",
+		1: "JSON",
+		2: "HEADER",
+		3: "STATUS_CODE",
+	}
+	VariableExtraction_SourceType_value = map[string]int32{
+		"UNKNOWN":     0,
+		"JSON":        1,
+		"HEADER":      2,
+		"STATUS_CODE": 3,
+	}
+)
+
+func (x VariableExtraction_SourceType) Enum() *VariableExtraction_SourceType {
+	p := new(VariableExtraction_SourceType)
+	*p = x
+	return p
+}
+
+func (x VariableExtraction_SourceType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (VariableExtraction_SourceType) Descriptor() protoreflect.EnumDescriptor {
+	return file_ws_proto_enumTypes[2].Descriptor()
+}
+
+func (VariableExtraction_SourceType) Type() protoreflect.EnumType {
+	return &file_ws_proto_enumTypes[2]
+}
+
+func (x VariableExtraction_SourceType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use VariableExtraction_SourceType.Descriptor instead.
+func (VariableExtraction_SourceType) EnumDescriptor() ([]byte, []int) {
+	return file_ws_proto_rawDescGZIP(), []int{4, 0}
+}
+
+type HTTPRequestStep_HttpMethod int32
+
+const (
+	HTTPRequestStep_UNKNOWN HTTPRequestStep_HttpMethod = 0
+	HTTPRequestStep_GET     HTTPRequestStep_HttpMethod = 1
+	HTTPRequestStep_POST    HTTPRequestStep_HttpMethod = 2
+	HTTPRequestStep_PUT     HTTPRequestStep_HttpMethod = 3
+	HTTPRequestStep_DELETE  HTTPRequestStep_HttpMethod = 4
+	HTTPRequestStep_PATCH   HTTPRequestStep_HttpMethod = 5
+	HTTPRequestStep_OPTIONS HTTPRequestStep_HttpMethod = 6
+)
+
+// Enum value maps for HTTPRequestStep_HttpMethod.
+var (
+	HTTPRequestStep_HttpMethod_name = map[int32]string{
+		0: "UNKNOWN",
+		1: "GET",
+		2: "POST",
+		3: "PUT",
+		4: "DELETE",
+		5: "PATCH",
+		6: "OPTIONS",
+	}
+	HTTPRequestStep_HttpMethod_value = map[string]int32{
+		"UNKNOWN": 0,
+		"GET":     1,
+		"POST":    2,
+		"PUT":     3,
+		"DELETE":  4,
+		"PATCH":   5,
+		"OPTIONS": 6,
+	}
+)
+
+func (x HTTPRequestStep_HttpMethod) Enum() *HTTPRequestStep_HttpMethod {
+	p := new(HTTPRequestStep_HttpMethod)
+	*p = x
+	return p
+}
+
+func (x HTTPRequestStep_HttpMethod) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (HTTPRequestStep_HttpMethod) Descriptor() protoreflect.EnumDescriptor {
+	return file_ws_proto_enumTypes[3].Descriptor()
+}
+
+func (HTTPRequestStep_HttpMethod) Type() protoreflect.EnumType {
+	return &file_ws_proto_enumTypes[3]
+}
+
+func (x HTTPRequestStep_HttpMethod) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use HTTPRequestStep_HttpMethod.Descriptor instead.
+func (HTTPRequestStep_HttpMethod) EnumDescriptor() ([]byte, []int) {
+	return file_ws_proto_rawDescGZIP(), []int{5, 0}
+}
+
+type TestResult_TestStatus int32
+
+const (
+	TestResult_UNKNOWN TestResult_TestStatus = 0
+	TestResult_PENDING TestResult_TestStatus = 1
+	TestResult_RUNNING TestResult_TestStatus = 2
+	TestResult_PASS    TestResult_TestStatus = 3
+	TestResult_FAIL    TestResult_TestStatus = 4
+	TestResult_ERROR   TestResult_TestStatus = 5
+)
+
+// Enum value maps for TestResult_TestStatus.
+var (
+	TestResult_TestStatus_name = map[int32]string{
+		0: "UNKNOWN",
+		1: "PENDING",
+		2: "RUNNING",
+		3: "PASS",
+		4: "FAIL",
+		5: "ERROR",
+	}
+	TestResult_TestStatus_value = map[string]int32{
+		"UNKNOWN": 0,
+		"PENDING": 1,
+		"RUNNING": 2,
+		"PASS":    3,
+		"FAIL":    4,
+		"ERROR":   5,
+	}
+)
+
+func (x TestResult_TestStatus) Enum() *TestResult_TestStatus {
+	p := new(TestResult_TestStatus)
+	*p = x
+	return p
+}
+
+func (x TestResult_TestStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (TestResult_TestStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_ws_proto_enumTypes[4].Descriptor()
+}
+
+func (TestResult_TestStatus) Type() protoreflect.EnumType {
+	return &file_ws_proto_enumTypes[4]
+}
+
+func (x TestResult_TestStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use TestResult_TestStatus.Descriptor instead.
+func (TestResult_TestStatus) EnumDescriptor() ([]byte, []int) {
+	return file_ws_proto_rawDescGZIP(), []int{8, 0}
+}
+
+type VerificationProgressMessage_VerificationStage int32
+
+const (
+	VerificationProgressMessage_UNKNOWN               VerificationProgressMessage_VerificationStage = 0
+	VerificationProgressMessage_INITIALIZING          VerificationProgressMessage_VerificationStage = 1
+	VerificationProgressMessage_DIFF_GENERATED        VerificationProgressMessage_VerificationStage = 2
+	VerificationProgressMessage_GENERATING_TESTS      VerificationProgressMessage_VerificationStage = 3
+	VerificationProgressMessage_TESTS_GENERATED       VerificationProgressMessage_VerificationStage = 4
+	VerificationProgressMessage_RUNNING_TESTS         VerificationProgressMessage_VerificationStage = 5
+	VerificationProgressMessage_LOCAL_TESTS_COMPLETED VerificationProgressMessage_VerificationStage = 6
+	VerificationProgressMessage_VERIFYING_TELEMETRY   VerificationProgressMessage_VerificationStage = 7
+	VerificationProgressMessage_GENERATING_REPORT     VerificationProgressMessage_VerificationStage = 8
+	VerificationProgressMessage_REPORT_READY          VerificationProgressMessage_VerificationStage = 9
+	VerificationProgressMessage_ERROR                 VerificationProgressMessage_VerificationStage = 10
+)
+
+// Enum value maps for VerificationProgressMessage_VerificationStage.
+var (
+	VerificationProgressMessage_VerificationStage_name = map[int32]string{
+		0:  "UNKNOWN",
+		1:  "INITIALIZING",
+		2:  "DIFF_GENERATED",
+		3:  "GENERATING_TESTS",
+		4:  "TESTS_GENERATED",
+		5:  "RUNNING_TESTS",
+		6:  "LOCAL_TESTS_COMPLETED",
+		7:  "VERIFYING_TELEMETRY",
+		8:  "GENERATING_REPORT",
+		9:  "REPORT_READY",
+		10: "ERROR",
+	}
+	VerificationProgressMessage_VerificationStage_value = map[string]int32{
+		"UNKNOWN":               0,
+		"INITIALIZING":          1,
+		"DIFF_GENERATED":        2,
+		"GENERATING_TESTS":      3,
+		"TESTS_GENERATED":       4,
+		"RUNNING_TESTS":         5,
+		"LOCAL_TESTS_COMPLETED": 6,
+		"VERIFYING_TELEMETRY":   7,
+		"GENERATING_REPORT":     8,
+		"REPORT_READY":          9,
+		"ERROR":                 10,
+	}
+)
+
+func (x VerificationProgressMessage_VerificationStage) Enum() *VerificationProgressMessage_VerificationStage {
+	p := new(VerificationProgressMessage_VerificationStage)
+	*p = x
+	return p
+}
+
+func (x VerificationProgressMessage_VerificationStage) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (VerificationProgressMessage_VerificationStage) Descriptor() protoreflect.EnumDescriptor {
+	return file_ws_proto_enumTypes[5].Descriptor()
+}
+
+func (VerificationProgressMessage_VerificationStage) Type() protoreflect.EnumType {
+	return &file_ws_proto_enumTypes[5]
+}
+
+func (x VerificationProgressMessage_VerificationStage) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use VerificationProgressMessage_VerificationStage.Descriptor instead.
+func (VerificationProgressMessage_VerificationStage) EnumDescriptor() ([]byte, []int) {
+	return file_ws_proto_rawDescGZIP(), []int{12, 0}
+}
+
+type VerificationProgressResponse_VerificationStatus int32
+
+const (
+	VerificationProgressResponse_UNKNOWN           VerificationProgressResponse_VerificationStatus = 0
+	VerificationProgressResponse_ACCEPTED          VerificationProgressResponse_VerificationStatus = 1
+	VerificationProgressResponse_ERROR             VerificationProgressResponse_VerificationStatus = 2
+	VerificationProgressResponse_GENERATING_REPORT VerificationProgressResponse_VerificationStatus = 3
+	VerificationProgressResponse_REPORT_READY      VerificationProgressResponse_VerificationStatus = 4
+)
+
+// Enum value maps for VerificationProgressResponse_VerificationStatus.
+var (
+	VerificationProgressResponse_VerificationStatus_name = map[int32]string{
+		0: "UNKNOWN",
+		1: "ACCEPTED",
+		2: "ERROR",
+		3: "GENERATING_REPORT",
+		4: "REPORT_READY",
+	}
+	VerificationProgressResponse_VerificationStatus_value = map[string]int32{
+		"UNKNOWN":           0,
+		"ACCEPTED":          1,
+		"ERROR":             2,
+		"GENERATING_REPORT": 3,
+		"REPORT_READY":      4,
+	}
+)
+
+func (x VerificationProgressResponse_VerificationStatus) Enum() *VerificationProgressResponse_VerificationStatus {
+	p := new(VerificationProgressResponse_VerificationStatus)
+	*p = x
+	return p
+}
+
+func (x VerificationProgressResponse_VerificationStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (VerificationProgressResponse_VerificationStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_ws_proto_enumTypes[6].Descriptor()
+}
+
+func (VerificationProgressResponse_VerificationStatus) Type() protoreflect.EnumType {
+	return &file_ws_proto_enumTypes[6]
+}
+
+func (x VerificationProgressResponse_VerificationStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use VerificationProgressResponse_VerificationStatus.Descriptor instead.
+func (VerificationProgressResponse_VerificationStatus) EnumDescriptor() ([]byte, []int) {
+	return file_ws_proto_rawDescGZIP(), []int{13, 0}
+}
+
+type AuthResponse_AuthStatus int32
+
+const (
+	AuthResponse_UNKNOWN       AuthResponse_AuthStatus = 0
+	AuthResponse_AUTHENTICATED AuthResponse_AuthStatus = 1
+	AuthResponse_UNAUTHORIZED  AuthResponse_AuthStatus = 2
+)
+
+// Enum value maps for AuthResponse_AuthStatus.
+var (
+	AuthResponse_AuthStatus_name = map[int32]string{
+		0: "UNKNOWN",
+		1: "AUTHENTICATED",
+		2: "UNAUTHORIZED",
+	}
+	AuthResponse_AuthStatus_value = map[string]int32{
+		"UNKNOWN":       0,
+		"AUTHENTICATED": 1,
+		"UNAUTHORIZED":  2,
+	}
+)
+
+func (x AuthResponse_AuthStatus) Enum() *AuthResponse_AuthStatus {
+	p := new(AuthResponse_AuthStatus)
+	*p = x
+	return p
+}
+
+func (x AuthResponse_AuthStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (AuthResponse_AuthStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_ws_proto_enumTypes[7].Descriptor()
+}
+
+func (AuthResponse_AuthStatus) Type() protoreflect.EnumType {
+	return &file_ws_proto_enumTypes[7]
+}
+
+func (x AuthResponse_AuthStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use AuthResponse_AuthStatus.Descriptor instead.
+func (AuthResponse_AuthStatus) EnumDescriptor() ([]byte, []int) {
+	return file_ws_proto_rawDescGZIP(), []int{15, 0}
 }
 
 type WebsocketMessage_MessageType int32
 
 const (
-	WebsocketMessage_UNKNOWN       WebsocketMessage_MessageType = 0
-	WebsocketMessage_PUSH_REQUEST  WebsocketMessage_MessageType = 1
-	WebsocketMessage_PUSH_RESPONSE WebsocketMessage_MessageType = 2
+	WebsocketMessage_UNKNOWN                        WebsocketMessage_MessageType = 0
+	WebsocketMessage_PUSH_REQUEST                   WebsocketMessage_MessageType = 1
+	WebsocketMessage_PUSH_RESPONSE                  WebsocketMessage_MessageType = 2
+	WebsocketMessage_VERIFICATION_PROGRESS          WebsocketMessage_MessageType = 3
+	WebsocketMessage_VERIFICATION_PROGRESS_RESPONSE WebsocketMessage_MessageType = 4
+	WebsocketMessage_AUTH_REQUEST                   WebsocketMessage_MessageType = 5
+	WebsocketMessage_AUTH_RESPONSE                  WebsocketMessage_MessageType = 6
 )
 
 // Enum value maps for WebsocketMessage_MessageType.
@@ -90,11 +498,19 @@ var (
 		0: "UNKNOWN",
 		1: "PUSH_REQUEST",
 		2: "PUSH_RESPONSE",
+		3: "VERIFICATION_PROGRESS",
+		4: "VERIFICATION_PROGRESS_RESPONSE",
+		5: "AUTH_REQUEST",
+		6: "AUTH_RESPONSE",
 	}
 	WebsocketMessage_MessageType_value = map[string]int32{
-		"UNKNOWN":       0,
-		"PUSH_REQUEST":  1,
-		"PUSH_RESPONSE": 2,
+		"UNKNOWN":                        0,
+		"PUSH_REQUEST":                   1,
+		"PUSH_RESPONSE":                  2,
+		"VERIFICATION_PROGRESS":          3,
+		"VERIFICATION_PROGRESS_RESPONSE": 4,
+		"AUTH_REQUEST":                   5,
+		"AUTH_RESPONSE":                  6,
 	}
 )
 
@@ -109,11 +525,11 @@ func (x WebsocketMessage_MessageType) String() string {
 }
 
 func (WebsocketMessage_MessageType) Descriptor() protoreflect.EnumDescriptor {
-	return file_ws_proto_enumTypes[1].Descriptor()
+	return file_ws_proto_enumTypes[8].Descriptor()
 }
 
 func (WebsocketMessage_MessageType) Type() protoreflect.EnumType {
-	return &file_ws_proto_enumTypes[1]
+	return &file_ws_proto_enumTypes[8]
 }
 
 func (x WebsocketMessage_MessageType) Number() protoreflect.EnumNumber {
@@ -122,7 +538,83 @@ func (x WebsocketMessage_MessageType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use WebsocketMessage_MessageType.Descriptor instead.
 func (WebsocketMessage_MessageType) EnumDescriptor() ([]byte, []int) {
-	return file_ws_proto_rawDescGZIP(), []int{2, 0}
+	return file_ws_proto_rawDescGZIP(), []int{16, 0}
+}
+
+type DatabaseBranchUpdate struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	DatabaseName     string                 `protobuf:"bytes,1,opt,name=database_name,json=databaseName,proto3" json:"database_name,omitempty"`
+	PreviousBranchId string                 `protobuf:"bytes,2,opt,name=previous_branch_id,json=previousBranchId,proto3" json:"previous_branch_id,omitempty"`
+	NewBranchId      string                 `protobuf:"bytes,3,opt,name=new_branch_id,json=newBranchId,proto3" json:"new_branch_id,omitempty"`
+	BranchCreated    bool                   `protobuf:"varint,4,opt,name=branch_created,json=branchCreated,proto3" json:"branch_created,omitempty"`     // True if new_branch was created
+	ParentBranchId   string                 `protobuf:"bytes,5,opt,name=parent_branch_id,json=parentBranchId,proto3" json:"parent_branch_id,omitempty"` // Set when branch_created=true
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *DatabaseBranchUpdate) Reset() {
+	*x = DatabaseBranchUpdate{}
+	mi := &file_ws_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DatabaseBranchUpdate) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DatabaseBranchUpdate) ProtoMessage() {}
+
+func (x *DatabaseBranchUpdate) ProtoReflect() protoreflect.Message {
+	mi := &file_ws_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DatabaseBranchUpdate.ProtoReflect.Descriptor instead.
+func (*DatabaseBranchUpdate) Descriptor() ([]byte, []int) {
+	return file_ws_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *DatabaseBranchUpdate) GetDatabaseName() string {
+	if x != nil {
+		return x.DatabaseName
+	}
+	return ""
+}
+
+func (x *DatabaseBranchUpdate) GetPreviousBranchId() string {
+	if x != nil {
+		return x.PreviousBranchId
+	}
+	return ""
+}
+
+func (x *DatabaseBranchUpdate) GetNewBranchId() string {
+	if x != nil {
+		return x.NewBranchId
+	}
+	return ""
+}
+
+func (x *DatabaseBranchUpdate) GetBranchCreated() bool {
+	if x != nil {
+		return x.BranchCreated
+	}
+	return false
+}
+
+func (x *DatabaseBranchUpdate) GetParentBranchId() string {
+	if x != nil {
+		return x.ParentBranchId
+	}
+	return ""
 }
 
 type PushMessage struct {
@@ -131,13 +623,19 @@ type PushMessage struct {
 	BatchFile         []byte                 `protobuf:"bytes,2,opt,name=batch_file,json=batchFile,proto3" json:"batch_file,omitempty"`
 	CodeDiff          string                 `protobuf:"bytes,3,opt,name=code_diff,json=codeDiff,proto3" json:"code_diff,omitempty"`
 	ChangeDescription string                 `protobuf:"bytes,4,opt,name=change_description,json=changeDescription,proto3" json:"change_description,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// Diff metadata fields (merged from DiffMetadata)
+	FilesChanged int32 `protobuf:"varint,5,opt,name=files_changed,json=filesChanged,proto3" json:"files_changed,omitempty"`
+	Additions    int32 `protobuf:"varint,6,opt,name=additions,proto3" json:"additions,omitempty"`
+	Deletions    int32 `protobuf:"varint,7,opt,name=deletions,proto3" json:"deletions,omitempty"`
+	// New field for branch updates
+	DatabaseBranchUpdates []*DatabaseBranchUpdate `protobuf:"bytes,8,rep,name=database_branch_updates,json=databaseBranchUpdates,proto3" json:"database_branch_updates,omitempty"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
 }
 
 func (x *PushMessage) Reset() {
 	*x = PushMessage{}
-	mi := &file_ws_proto_msgTypes[0]
+	mi := &file_ws_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -149,7 +647,7 @@ func (x *PushMessage) String() string {
 func (*PushMessage) ProtoMessage() {}
 
 func (x *PushMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_ws_proto_msgTypes[0]
+	mi := &file_ws_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -162,7 +660,7 @@ func (x *PushMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PushMessage.ProtoReflect.Descriptor instead.
 func (*PushMessage) Descriptor() ([]byte, []int) {
-	return file_ws_proto_rawDescGZIP(), []int{0}
+	return file_ws_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *PushMessage) GetPushId() string {
@@ -193,6 +691,34 @@ func (x *PushMessage) GetChangeDescription() string {
 	return ""
 }
 
+func (x *PushMessage) GetFilesChanged() int32 {
+	if x != nil {
+		return x.FilesChanged
+	}
+	return 0
+}
+
+func (x *PushMessage) GetAdditions() int32 {
+	if x != nil {
+		return x.Additions
+	}
+	return 0
+}
+
+func (x *PushMessage) GetDeletions() int32 {
+	if x != nil {
+		return x.Deletions
+	}
+	return 0
+}
+
+func (x *PushMessage) GetDatabaseBranchUpdates() []*DatabaseBranchUpdate {
+	if x != nil {
+		return x.DatabaseBranchUpdates
+	}
+	return nil
+}
+
 type PushResponse struct {
 	state         protoimpl.MessageState  `protogen:"open.v1"`
 	Status        PushResponse_PushStatus `protobuf:"varint,1,opt,name=status,proto3,enum=PushResponse_PushStatus" json:"status,omitempty"`
@@ -204,7 +730,7 @@ type PushResponse struct {
 
 func (x *PushResponse) Reset() {
 	*x = PushResponse{}
-	mi := &file_ws_proto_msgTypes[1]
+	mi := &file_ws_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -216,7 +742,7 @@ func (x *PushResponse) String() string {
 func (*PushResponse) ProtoMessage() {}
 
 func (x *PushResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_ws_proto_msgTypes[1]
+	mi := &file_ws_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -229,7 +755,7 @@ func (x *PushResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PushResponse.ProtoReflect.Descriptor instead.
 func (*PushResponse) Descriptor() ([]byte, []int) {
-	return file_ws_proto_rawDescGZIP(), []int{1}
+	return file_ws_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *PushResponse) GetStatus() PushResponse_PushStatus {
@@ -253,6 +779,936 @@ func (x *PushResponse) GetPushId() string {
 	return ""
 }
 
+type ResponseAssertion struct {
+	state         protoimpl.MessageState          `protogen:"open.v1"`
+	Type          ResponseAssertion_AssertionType `protobuf:"varint,1,opt,name=type,proto3,enum=ResponseAssertion_AssertionType" json:"type,omitempty"`
+	Expected      string                          `protobuf:"bytes,2,opt,name=expected,proto3" json:"expected,omitempty"` // JSON-encoded expected value
+	Path          *string                         `protobuf:"bytes,3,opt,name=path,proto3,oneof" json:"path,omitempty"`   // JSONPath for json_path assertions, header name for header assertions
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ResponseAssertion) Reset() {
+	*x = ResponseAssertion{}
+	mi := &file_ws_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ResponseAssertion) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ResponseAssertion) ProtoMessage() {}
+
+func (x *ResponseAssertion) ProtoReflect() protoreflect.Message {
+	mi := &file_ws_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ResponseAssertion.ProtoReflect.Descriptor instead.
+func (*ResponseAssertion) Descriptor() ([]byte, []int) {
+	return file_ws_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *ResponseAssertion) GetType() ResponseAssertion_AssertionType {
+	if x != nil {
+		return x.Type
+	}
+	return ResponseAssertion_UNKNOWN
+}
+
+func (x *ResponseAssertion) GetExpected() string {
+	if x != nil {
+		return x.Expected
+	}
+	return ""
+}
+
+func (x *ResponseAssertion) GetPath() string {
+	if x != nil && x.Path != nil {
+		return *x.Path
+	}
+	return ""
+}
+
+type VariableExtraction struct {
+	state         protoimpl.MessageState        `protogen:"open.v1"`
+	Name          string                        `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Source        VariableExtraction_SourceType `protobuf:"varint,2,opt,name=source,proto3,enum=VariableExtraction_SourceType" json:"source,omitempty"`
+	Path          *string                       `protobuf:"bytes,3,opt,name=path,proto3,oneof" json:"path,omitempty"` // JSONPath for json source, header name for header source
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *VariableExtraction) Reset() {
+	*x = VariableExtraction{}
+	mi := &file_ws_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *VariableExtraction) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*VariableExtraction) ProtoMessage() {}
+
+func (x *VariableExtraction) ProtoReflect() protoreflect.Message {
+	mi := &file_ws_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use VariableExtraction.ProtoReflect.Descriptor instead.
+func (*VariableExtraction) Descriptor() ([]byte, []int) {
+	return file_ws_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *VariableExtraction) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *VariableExtraction) GetSource() VariableExtraction_SourceType {
+	if x != nil {
+		return x.Source
+	}
+	return VariableExtraction_UNKNOWN
+}
+
+func (x *VariableExtraction) GetPath() string {
+	if x != nil && x.Path != nil {
+		return *x.Path
+	}
+	return ""
+}
+
+type HTTPRequestStep struct {
+	state             protoimpl.MessageState     `protogen:"open.v1"`
+	StepName          string                     `protobuf:"bytes,1,opt,name=step_name,json=stepName,proto3" json:"step_name,omitempty"`
+	Method            HTTPRequestStep_HttpMethod `protobuf:"varint,2,opt,name=method,proto3,enum=HTTPRequestStep_HttpMethod" json:"method,omitempty"`
+	Path              string                     `protobuf:"bytes,3,opt,name=path,proto3" json:"path,omitempty"`
+	Headers           map[string]string          `protobuf:"bytes,4,rep,name=headers,proto3" json:"headers,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Body              *string                    `protobuf:"bytes,5,opt,name=body,proto3,oneof" json:"body,omitempty"`
+	ExtractVariables  []*VariableExtraction      `protobuf:"bytes,6,rep,name=extract_variables,json=extractVariables,proto3" json:"extract_variables,omitempty"`
+	Assertions        []*ResponseAssertion       `protobuf:"bytes,7,rep,name=assertions,proto3" json:"assertions,omitempty"`
+	DependsOn         []string                   `protobuf:"bytes,8,rep,name=depends_on,json=dependsOn,proto3" json:"depends_on,omitempty"`
+	ContinueOnFailure bool                       `protobuf:"varint,9,opt,name=continue_on_failure,json=continueOnFailure,proto3" json:"continue_on_failure,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *HTTPRequestStep) Reset() {
+	*x = HTTPRequestStep{}
+	mi := &file_ws_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *HTTPRequestStep) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*HTTPRequestStep) ProtoMessage() {}
+
+func (x *HTTPRequestStep) ProtoReflect() protoreflect.Message {
+	mi := &file_ws_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use HTTPRequestStep.ProtoReflect.Descriptor instead.
+func (*HTTPRequestStep) Descriptor() ([]byte, []int) {
+	return file_ws_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *HTTPRequestStep) GetStepName() string {
+	if x != nil {
+		return x.StepName
+	}
+	return ""
+}
+
+func (x *HTTPRequestStep) GetMethod() HTTPRequestStep_HttpMethod {
+	if x != nil {
+		return x.Method
+	}
+	return HTTPRequestStep_UNKNOWN
+}
+
+func (x *HTTPRequestStep) GetPath() string {
+	if x != nil {
+		return x.Path
+	}
+	return ""
+}
+
+func (x *HTTPRequestStep) GetHeaders() map[string]string {
+	if x != nil {
+		return x.Headers
+	}
+	return nil
+}
+
+func (x *HTTPRequestStep) GetBody() string {
+	if x != nil && x.Body != nil {
+		return *x.Body
+	}
+	return ""
+}
+
+func (x *HTTPRequestStep) GetExtractVariables() []*VariableExtraction {
+	if x != nil {
+		return x.ExtractVariables
+	}
+	return nil
+}
+
+func (x *HTTPRequestStep) GetAssertions() []*ResponseAssertion {
+	if x != nil {
+		return x.Assertions
+	}
+	return nil
+}
+
+func (x *HTTPRequestStep) GetDependsOn() []string {
+	if x != nil {
+		return x.DependsOn
+	}
+	return nil
+}
+
+func (x *HTTPRequestStep) GetContinueOnFailure() bool {
+	if x != nil {
+		return x.ContinueOnFailure
+	}
+	return false
+}
+
+type HttpTest struct {
+	state              protoimpl.MessageState `protogen:"open.v1"`
+	Steps              []*HTTPRequestStep     `protobuf:"bytes,1,rep,name=steps,proto3" json:"steps,omitempty"`
+	InitialVariables   map[string]string      `protobuf:"bytes,2,rep,name=initial_variables,json=initialVariables,proto3" json:"initial_variables,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"` // JSON-encoded initial variables
+	StopOnFirstFailure bool                   `protobuf:"varint,3,opt,name=stop_on_first_failure,json=stopOnFirstFailure,proto3" json:"stop_on_first_failure,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
+}
+
+func (x *HttpTest) Reset() {
+	*x = HttpTest{}
+	mi := &file_ws_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *HttpTest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*HttpTest) ProtoMessage() {}
+
+func (x *HttpTest) ProtoReflect() protoreflect.Message {
+	mi := &file_ws_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use HttpTest.ProtoReflect.Descriptor instead.
+func (*HttpTest) Descriptor() ([]byte, []int) {
+	return file_ws_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *HttpTest) GetSteps() []*HTTPRequestStep {
+	if x != nil {
+		return x.Steps
+	}
+	return nil
+}
+
+func (x *HttpTest) GetInitialVariables() map[string]string {
+	if x != nil {
+		return x.InitialVariables
+	}
+	return nil
+}
+
+func (x *HttpTest) GetStopOnFirstFailure() bool {
+	if x != nil {
+		return x.StopOnFirstFailure
+	}
+	return false
+}
+
+type BrowserTest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	WorkflowSteps []string               `protobuf:"bytes,1,rep,name=workflow_steps,json=workflowSteps,proto3" json:"workflow_steps,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BrowserTest) Reset() {
+	*x = BrowserTest{}
+	mi := &file_ws_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BrowserTest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BrowserTest) ProtoMessage() {}
+
+func (x *BrowserTest) ProtoReflect() protoreflect.Message {
+	mi := &file_ws_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BrowserTest.ProtoReflect.Descriptor instead.
+func (*BrowserTest) Descriptor() ([]byte, []int) {
+	return file_ws_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *BrowserTest) GetWorkflowSteps() []string {
+	if x != nil {
+		return x.WorkflowSteps
+	}
+	return nil
+}
+
+type TestResult struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TestId        string                 `protobuf:"bytes,1,opt,name=test_id,json=testId,proto3" json:"test_id,omitempty"`
+	Status        TestResult_TestStatus  `protobuf:"varint,2,opt,name=status,proto3,enum=TestResult_TestStatus" json:"status,omitempty"`
+	Description   *string                `protobuf:"bytes,3,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	DetailsJson   string                 `protobuf:"bytes,4,opt,name=details_json,json=detailsJson,proto3" json:"details_json,omitempty"` // JSON-encoded details
+	Timestamp     *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TestResult) Reset() {
+	*x = TestResult{}
+	mi := &file_ws_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TestResult) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TestResult) ProtoMessage() {}
+
+func (x *TestResult) ProtoReflect() protoreflect.Message {
+	mi := &file_ws_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TestResult.ProtoReflect.Descriptor instead.
+func (*TestResult) Descriptor() ([]byte, []int) {
+	return file_ws_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *TestResult) GetTestId() string {
+	if x != nil {
+		return x.TestId
+	}
+	return ""
+}
+
+func (x *TestResult) GetStatus() TestResult_TestStatus {
+	if x != nil {
+		return x.Status
+	}
+	return TestResult_UNKNOWN
+}
+
+func (x *TestResult) GetDescription() string {
+	if x != nil && x.Description != nil {
+		return *x.Description
+	}
+	return ""
+}
+
+func (x *TestResult) GetDetailsJson() string {
+	if x != nil {
+		return x.DetailsJson
+	}
+	return ""
+}
+
+func (x *TestResult) GetTimestamp() *timestamppb.Timestamp {
+	if x != nil {
+		return x.Timestamp
+	}
+	return nil
+}
+
+type ClaudeMetadata struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	CostUsd       float64                `protobuf:"fixed64,1,opt,name=cost_usd,json=costUsd,proto3" json:"cost_usd,omitempty"`
+	DurationMs    int64                  `protobuf:"varint,2,opt,name=duration_ms,json=durationMs,proto3" json:"duration_ms,omitempty"`
+	DurationApiMs int64                  `protobuf:"varint,3,opt,name=duration_api_ms,json=durationApiMs,proto3" json:"duration_api_ms,omitempty"`
+	NumTurns      int32                  `protobuf:"varint,4,opt,name=num_turns,json=numTurns,proto3" json:"num_turns,omitempty"`
+	SessionId     string                 `protobuf:"bytes,5,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ClaudeMetadata) Reset() {
+	*x = ClaudeMetadata{}
+	mi := &file_ws_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ClaudeMetadata) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ClaudeMetadata) ProtoMessage() {}
+
+func (x *ClaudeMetadata) ProtoReflect() protoreflect.Message {
+	mi := &file_ws_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ClaudeMetadata.ProtoReflect.Descriptor instead.
+func (*ClaudeMetadata) Descriptor() ([]byte, []int) {
+	return file_ws_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *ClaudeMetadata) GetCostUsd() float64 {
+	if x != nil {
+		return x.CostUsd
+	}
+	return 0
+}
+
+func (x *ClaudeMetadata) GetDurationMs() int64 {
+	if x != nil {
+		return x.DurationMs
+	}
+	return 0
+}
+
+func (x *ClaudeMetadata) GetDurationApiMs() int64 {
+	if x != nil {
+		return x.DurationApiMs
+	}
+	return 0
+}
+
+func (x *ClaudeMetadata) GetNumTurns() int32 {
+	if x != nil {
+		return x.NumTurns
+	}
+	return 0
+}
+
+func (x *ClaudeMetadata) GetSessionId() string {
+	if x != nil {
+		return x.SessionId
+	}
+	return ""
+}
+
+type TestLog struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TestId        string                 `protobuf:"bytes,1,opt,name=test_id,json=testId,proto3" json:"test_id,omitempty"`
+	Timestamp     *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	LogType       string                 `protobuf:"bytes,3,opt,name=log_type,json=logType,proto3" json:"log_type,omitempty"`
+	DetailsJson   string                 `protobuf:"bytes,4,opt,name=details_json,json=detailsJson,proto3" json:"details_json,omitempty"` // JSON-encoded details
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TestLog) Reset() {
+	*x = TestLog{}
+	mi := &file_ws_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TestLog) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TestLog) ProtoMessage() {}
+
+func (x *TestLog) ProtoReflect() protoreflect.Message {
+	mi := &file_ws_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TestLog.ProtoReflect.Descriptor instead.
+func (*TestLog) Descriptor() ([]byte, []int) {
+	return file_ws_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *TestLog) GetTestId() string {
+	if x != nil {
+		return x.TestId
+	}
+	return ""
+}
+
+func (x *TestLog) GetTimestamp() *timestamppb.Timestamp {
+	if x != nil {
+		return x.Timestamp
+	}
+	return nil
+}
+
+func (x *TestLog) GetLogType() string {
+	if x != nil {
+		return x.LogType
+	}
+	return ""
+}
+
+func (x *TestLog) GetDetailsJson() string {
+	if x != nil {
+		return x.DetailsJson
+	}
+	return ""
+}
+
+type TestInfo struct {
+	state       protoimpl.MessageState `protogen:"open.v1"`
+	TestId      string                 `protobuf:"bytes,1,opt,name=test_id,json=testId,proto3" json:"test_id,omitempty"`
+	Description string                 `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
+	// Types that are valid to be assigned to Test:
+	//
+	//	*TestInfo_HttpTest
+	//	*TestInfo_BrowserTest
+	Test          isTestInfo_Test `protobuf_oneof:"test"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TestInfo) Reset() {
+	*x = TestInfo{}
+	mi := &file_ws_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TestInfo) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TestInfo) ProtoMessage() {}
+
+func (x *TestInfo) ProtoReflect() protoreflect.Message {
+	mi := &file_ws_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TestInfo.ProtoReflect.Descriptor instead.
+func (*TestInfo) Descriptor() ([]byte, []int) {
+	return file_ws_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *TestInfo) GetTestId() string {
+	if x != nil {
+		return x.TestId
+	}
+	return ""
+}
+
+func (x *TestInfo) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *TestInfo) GetTest() isTestInfo_Test {
+	if x != nil {
+		return x.Test
+	}
+	return nil
+}
+
+func (x *TestInfo) GetHttpTest() *HttpTest {
+	if x != nil {
+		if x, ok := x.Test.(*TestInfo_HttpTest); ok {
+			return x.HttpTest
+		}
+	}
+	return nil
+}
+
+func (x *TestInfo) GetBrowserTest() *BrowserTest {
+	if x != nil {
+		if x, ok := x.Test.(*TestInfo_BrowserTest); ok {
+			return x.BrowserTest
+		}
+	}
+	return nil
+}
+
+type isTestInfo_Test interface {
+	isTestInfo_Test()
+}
+
+type TestInfo_HttpTest struct {
+	HttpTest *HttpTest `protobuf:"bytes,3,opt,name=http_test,json=httpTest,proto3,oneof"`
+}
+
+type TestInfo_BrowserTest struct {
+	BrowserTest *BrowserTest `protobuf:"bytes,4,opt,name=browser_test,json=browserTest,proto3,oneof"`
+}
+
+func (*TestInfo_HttpTest) isTestInfo_Test() {}
+
+func (*TestInfo_BrowserTest) isTestInfo_Test() {}
+
+type VerificationProgressMessage struct {
+	state          protoimpl.MessageState                        `protogen:"open.v1"`
+	PushId         string                                        `protobuf:"bytes,1,opt,name=push_id,json=pushId,proto3" json:"push_id,omitempty"`
+	Stage          VerificationProgressMessage_VerificationStage `protobuf:"varint,2,opt,name=stage,proto3,enum=VerificationProgressMessage_VerificationStage" json:"stage,omitempty"`
+	Tests          []*TestInfo                                   `protobuf:"bytes,3,rep,name=tests,proto3" json:"tests,omitempty"`
+	TestResults    []*TestResult                                 `protobuf:"bytes,4,rep,name=test_results,json=testResults,proto3" json:"test_results,omitempty"`
+	ErrorMessage   *string                                       `protobuf:"bytes,5,opt,name=error_message,json=errorMessage,proto3,oneof" json:"error_message,omitempty"`
+	StartedAt      *timestamppb.Timestamp                        `protobuf:"bytes,6,opt,name=started_at,json=startedAt,proto3,oneof" json:"started_at,omitempty"`
+	CompletedAt    *timestamppb.Timestamp                        `protobuf:"bytes,7,opt,name=completed_at,json=completedAt,proto3,oneof" json:"completed_at,omitempty"`
+	ClaudeMetadata *ClaudeMetadata                               `protobuf:"bytes,8,opt,name=claude_metadata,json=claudeMetadata,proto3,oneof" json:"claude_metadata,omitempty"`
+	TestLogs       []*TestLog                                    `protobuf:"bytes,9,rep,name=test_logs,json=testLogs,proto3" json:"test_logs,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *VerificationProgressMessage) Reset() {
+	*x = VerificationProgressMessage{}
+	mi := &file_ws_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *VerificationProgressMessage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*VerificationProgressMessage) ProtoMessage() {}
+
+func (x *VerificationProgressMessage) ProtoReflect() protoreflect.Message {
+	mi := &file_ws_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use VerificationProgressMessage.ProtoReflect.Descriptor instead.
+func (*VerificationProgressMessage) Descriptor() ([]byte, []int) {
+	return file_ws_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *VerificationProgressMessage) GetPushId() string {
+	if x != nil {
+		return x.PushId
+	}
+	return ""
+}
+
+func (x *VerificationProgressMessage) GetStage() VerificationProgressMessage_VerificationStage {
+	if x != nil {
+		return x.Stage
+	}
+	return VerificationProgressMessage_UNKNOWN
+}
+
+func (x *VerificationProgressMessage) GetTests() []*TestInfo {
+	if x != nil {
+		return x.Tests
+	}
+	return nil
+}
+
+func (x *VerificationProgressMessage) GetTestResults() []*TestResult {
+	if x != nil {
+		return x.TestResults
+	}
+	return nil
+}
+
+func (x *VerificationProgressMessage) GetErrorMessage() string {
+	if x != nil && x.ErrorMessage != nil {
+		return *x.ErrorMessage
+	}
+	return ""
+}
+
+func (x *VerificationProgressMessage) GetStartedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.StartedAt
+	}
+	return nil
+}
+
+func (x *VerificationProgressMessage) GetCompletedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CompletedAt
+	}
+	return nil
+}
+
+func (x *VerificationProgressMessage) GetClaudeMetadata() *ClaudeMetadata {
+	if x != nil {
+		return x.ClaudeMetadata
+	}
+	return nil
+}
+
+func (x *VerificationProgressMessage) GetTestLogs() []*TestLog {
+	if x != nil {
+		return x.TestLogs
+	}
+	return nil
+}
+
+type VerificationProgressResponse struct {
+	state         protoimpl.MessageState                          `protogen:"open.v1"`
+	PushId        string                                          `protobuf:"bytes,1,opt,name=push_id,json=pushId,proto3" json:"push_id,omitempty"`
+	Status        VerificationProgressResponse_VerificationStatus `protobuf:"varint,2,opt,name=status,proto3,enum=VerificationProgressResponse_VerificationStatus" json:"status,omitempty"`
+	ErrorMessage  *string                                         `protobuf:"bytes,3,opt,name=error_message,json=errorMessage,proto3,oneof" json:"error_message,omitempty"`
+	AgentReport   *string                                         `protobuf:"bytes,4,opt,name=agent_report,json=agentReport,proto3,oneof" json:"agent_report,omitempty"`
+	HumanReport   *string                                         `protobuf:"bytes,5,opt,name=human_report,json=humanReport,proto3,oneof" json:"human_report,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *VerificationProgressResponse) Reset() {
+	*x = VerificationProgressResponse{}
+	mi := &file_ws_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *VerificationProgressResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*VerificationProgressResponse) ProtoMessage() {}
+
+func (x *VerificationProgressResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_ws_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use VerificationProgressResponse.ProtoReflect.Descriptor instead.
+func (*VerificationProgressResponse) Descriptor() ([]byte, []int) {
+	return file_ws_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *VerificationProgressResponse) GetPushId() string {
+	if x != nil {
+		return x.PushId
+	}
+	return ""
+}
+
+func (x *VerificationProgressResponse) GetStatus() VerificationProgressResponse_VerificationStatus {
+	if x != nil {
+		return x.Status
+	}
+	return VerificationProgressResponse_UNKNOWN
+}
+
+func (x *VerificationProgressResponse) GetErrorMessage() string {
+	if x != nil && x.ErrorMessage != nil {
+		return *x.ErrorMessage
+	}
+	return ""
+}
+
+func (x *VerificationProgressResponse) GetAgentReport() string {
+	if x != nil && x.AgentReport != nil {
+		return *x.AgentReport
+	}
+	return ""
+}
+
+func (x *VerificationProgressResponse) GetHumanReport() string {
+	if x != nil && x.HumanReport != nil {
+		return *x.HumanReport
+	}
+	return ""
+}
+
+type AuthMessage struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	SessionToken  string                 `protobuf:"bytes,1,opt,name=session_token,json=sessionToken,proto3" json:"session_token,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AuthMessage) Reset() {
+	*x = AuthMessage{}
+	mi := &file_ws_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AuthMessage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AuthMessage) ProtoMessage() {}
+
+func (x *AuthMessage) ProtoReflect() protoreflect.Message {
+	mi := &file_ws_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AuthMessage.ProtoReflect.Descriptor instead.
+func (*AuthMessage) Descriptor() ([]byte, []int) {
+	return file_ws_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *AuthMessage) GetSessionToken() string {
+	if x != nil {
+		return x.SessionToken
+	}
+	return ""
+}
+
+type AuthResponse struct {
+	state         protoimpl.MessageState  `protogen:"open.v1"`
+	Status        AuthResponse_AuthStatus `protobuf:"varint,1,opt,name=status,proto3,enum=AuthResponse_AuthStatus" json:"status,omitempty"`
+	ErrorMessage  *string                 `protobuf:"bytes,2,opt,name=error_message,json=errorMessage,proto3,oneof" json:"error_message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AuthResponse) Reset() {
+	*x = AuthResponse{}
+	mi := &file_ws_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AuthResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AuthResponse) ProtoMessage() {}
+
+func (x *AuthResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_ws_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AuthResponse.ProtoReflect.Descriptor instead.
+func (*AuthResponse) Descriptor() ([]byte, []int) {
+	return file_ws_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *AuthResponse) GetStatus() AuthResponse_AuthStatus {
+	if x != nil {
+		return x.Status
+	}
+	return AuthResponse_UNKNOWN
+}
+
+func (x *AuthResponse) GetErrorMessage() string {
+	if x != nil && x.ErrorMessage != nil {
+		return *x.ErrorMessage
+	}
+	return ""
+}
+
 type WebsocketMessage struct {
 	state       protoimpl.MessageState       `protogen:"open.v1"`
 	MessageType WebsocketMessage_MessageType `protobuf:"varint,1,opt,name=message_type,json=messageType,proto3,enum=WebsocketMessage_MessageType" json:"message_type,omitempty"`
@@ -260,6 +1716,10 @@ type WebsocketMessage struct {
 	//
 	//	*WebsocketMessage_PushMessage
 	//	*WebsocketMessage_PushResponse
+	//	*WebsocketMessage_VerificationProgress
+	//	*WebsocketMessage_VerificationProgressResponse
+	//	*WebsocketMessage_AuthMessage
+	//	*WebsocketMessage_AuthResponse
 	Message       isWebsocketMessage_Message `protobuf_oneof:"message"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -267,7 +1727,7 @@ type WebsocketMessage struct {
 
 func (x *WebsocketMessage) Reset() {
 	*x = WebsocketMessage{}
-	mi := &file_ws_proto_msgTypes[2]
+	mi := &file_ws_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -279,7 +1739,7 @@ func (x *WebsocketMessage) String() string {
 func (*WebsocketMessage) ProtoMessage() {}
 
 func (x *WebsocketMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_ws_proto_msgTypes[2]
+	mi := &file_ws_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -292,7 +1752,7 @@ func (x *WebsocketMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WebsocketMessage.ProtoReflect.Descriptor instead.
 func (*WebsocketMessage) Descriptor() ([]byte, []int) {
-	return file_ws_proto_rawDescGZIP(), []int{2}
+	return file_ws_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *WebsocketMessage) GetMessageType() WebsocketMessage_MessageType {
@@ -327,6 +1787,42 @@ func (x *WebsocketMessage) GetPushResponse() *PushResponse {
 	return nil
 }
 
+func (x *WebsocketMessage) GetVerificationProgress() *VerificationProgressMessage {
+	if x != nil {
+		if x, ok := x.Message.(*WebsocketMessage_VerificationProgress); ok {
+			return x.VerificationProgress
+		}
+	}
+	return nil
+}
+
+func (x *WebsocketMessage) GetVerificationProgressResponse() *VerificationProgressResponse {
+	if x != nil {
+		if x, ok := x.Message.(*WebsocketMessage_VerificationProgressResponse); ok {
+			return x.VerificationProgressResponse
+		}
+	}
+	return nil
+}
+
+func (x *WebsocketMessage) GetAuthMessage() *AuthMessage {
+	if x != nil {
+		if x, ok := x.Message.(*WebsocketMessage_AuthMessage); ok {
+			return x.AuthMessage
+		}
+	}
+	return nil
+}
+
+func (x *WebsocketMessage) GetAuthResponse() *AuthResponse {
+	if x != nil {
+		if x, ok := x.Message.(*WebsocketMessage_AuthResponse); ok {
+			return x.AuthResponse
+		}
+	}
+	return nil
+}
+
 type isWebsocketMessage_Message interface {
 	isWebsocketMessage_Message()
 }
@@ -339,21 +1835,55 @@ type WebsocketMessage_PushResponse struct {
 	PushResponse *PushResponse `protobuf:"bytes,3,opt,name=push_response,json=pushResponse,proto3,oneof"`
 }
 
+type WebsocketMessage_VerificationProgress struct {
+	VerificationProgress *VerificationProgressMessage `protobuf:"bytes,4,opt,name=verification_progress,json=verificationProgress,proto3,oneof"`
+}
+
+type WebsocketMessage_VerificationProgressResponse struct {
+	VerificationProgressResponse *VerificationProgressResponse `protobuf:"bytes,5,opt,name=verification_progress_response,json=verificationProgressResponse,proto3,oneof"`
+}
+
+type WebsocketMessage_AuthMessage struct {
+	AuthMessage *AuthMessage `protobuf:"bytes,6,opt,name=auth_message,json=authMessage,proto3,oneof"`
+}
+
+type WebsocketMessage_AuthResponse struct {
+	AuthResponse *AuthResponse `protobuf:"bytes,7,opt,name=auth_response,json=authResponse,proto3,oneof"`
+}
+
 func (*WebsocketMessage_PushMessage) isWebsocketMessage_Message() {}
 
 func (*WebsocketMessage_PushResponse) isWebsocketMessage_Message() {}
+
+func (*WebsocketMessage_VerificationProgress) isWebsocketMessage_Message() {}
+
+func (*WebsocketMessage_VerificationProgressResponse) isWebsocketMessage_Message() {}
+
+func (*WebsocketMessage_AuthMessage) isWebsocketMessage_Message() {}
+
+func (*WebsocketMessage_AuthResponse) isWebsocketMessage_Message() {}
 
 var File_ws_proto protoreflect.FileDescriptor
 
 const file_ws_proto_rawDesc = "" +
 	"\n" +
-	"\bws.proto\"\x91\x01\n" +
+	"\bws.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xde\x01\n" +
+	"\x14DatabaseBranchUpdate\x12#\n" +
+	"\rdatabase_name\x18\x01 \x01(\tR\fdatabaseName\x12,\n" +
+	"\x12previous_branch_id\x18\x02 \x01(\tR\x10previousBranchId\x12\"\n" +
+	"\rnew_branch_id\x18\x03 \x01(\tR\vnewBranchId\x12%\n" +
+	"\x0ebranch_created\x18\x04 \x01(\bR\rbranchCreated\x12(\n" +
+	"\x10parent_branch_id\x18\x05 \x01(\tR\x0eparentBranchId\"\xc1\x02\n" +
 	"\vPushMessage\x12\x17\n" +
 	"\apush_id\x18\x01 \x01(\tR\x06pushId\x12\x1d\n" +
 	"\n" +
 	"batch_file\x18\x02 \x01(\fR\tbatchFile\x12\x1b\n" +
 	"\tcode_diff\x18\x03 \x01(\tR\bcodeDiff\x12-\n" +
-	"\x12change_description\x18\x04 \x01(\tR\x11changeDescription\"\xd2\x01\n" +
+	"\x12change_description\x18\x04 \x01(\tR\x11changeDescription\x12#\n" +
+	"\rfiles_changed\x18\x05 \x01(\x05R\ffilesChanged\x12\x1c\n" +
+	"\tadditions\x18\x06 \x01(\x05R\tadditions\x12\x1c\n" +
+	"\tdeletions\x18\a \x01(\x05R\tdeletions\x12M\n" +
+	"\x17database_branch_updates\x18\b \x03(\v2\x15.DatabaseBranchUpdateR\x15databaseBranchUpdates\"\xd2\x01\n" +
 	"\fPushResponse\x120\n" +
 	"\x06status\x18\x01 \x01(\x0e2\x18.PushResponse.PushStatusR\x06status\x12#\n" +
 	"\rerror_message\x18\x02 \x01(\tR\ferrorMessage\x12\x17\n" +
@@ -365,15 +1895,172 @@ const file_ws_proto_rawDesc = "" +
 	"\vIN_PROGRESS\x10\x02\x12\n" +
 	"\n" +
 	"\x06FAILED\x10\x03\x12\r\n" +
-	"\tCOMPLETED\x10\x04\"\x89\x02\n" +
+	"\tCOMPLETED\x10\x04\"\xe4\x01\n" +
+	"\x11ResponseAssertion\x124\n" +
+	"\x04type\x18\x01 \x01(\x0e2 .ResponseAssertion.AssertionTypeR\x04type\x12\x1a\n" +
+	"\bexpected\x18\x02 \x01(\tR\bexpected\x12\x17\n" +
+	"\x04path\x18\x03 \x01(\tH\x00R\x04path\x88\x01\x01\"[\n" +
+	"\rAssertionType\x12\v\n" +
+	"\aUNKNOWN\x10\x00\x12\x0f\n" +
+	"\vSTATUS_CODE\x10\x01\x12\r\n" +
+	"\tJSON_PATH\x10\x02\x12\n" +
+	"\n" +
+	"\x06HEADER\x10\x03\x12\x11\n" +
+	"\rBODY_CONTAINS\x10\x04B\a\n" +
+	"\x05_path\"\xc4\x01\n" +
+	"\x12VariableExtraction\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x126\n" +
+	"\x06source\x18\x02 \x01(\x0e2\x1e.VariableExtraction.SourceTypeR\x06source\x12\x17\n" +
+	"\x04path\x18\x03 \x01(\tH\x00R\x04path\x88\x01\x01\"@\n" +
+	"\n" +
+	"SourceType\x12\v\n" +
+	"\aUNKNOWN\x10\x00\x12\b\n" +
+	"\x04JSON\x10\x01\x12\n" +
+	"\n" +
+	"\x06HEADER\x10\x02\x12\x0f\n" +
+	"\vSTATUS_CODE\x10\x03B\a\n" +
+	"\x05_path\"\xae\x04\n" +
+	"\x0fHTTPRequestStep\x12\x1b\n" +
+	"\tstep_name\x18\x01 \x01(\tR\bstepName\x123\n" +
+	"\x06method\x18\x02 \x01(\x0e2\x1b.HTTPRequestStep.HttpMethodR\x06method\x12\x12\n" +
+	"\x04path\x18\x03 \x01(\tR\x04path\x127\n" +
+	"\aheaders\x18\x04 \x03(\v2\x1d.HTTPRequestStep.HeadersEntryR\aheaders\x12\x17\n" +
+	"\x04body\x18\x05 \x01(\tH\x00R\x04body\x88\x01\x01\x12@\n" +
+	"\x11extract_variables\x18\x06 \x03(\v2\x13.VariableExtractionR\x10extractVariables\x122\n" +
+	"\n" +
+	"assertions\x18\a \x03(\v2\x12.ResponseAssertionR\n" +
+	"assertions\x12\x1d\n" +
+	"\n" +
+	"depends_on\x18\b \x03(\tR\tdependsOn\x12.\n" +
+	"\x13continue_on_failure\x18\t \x01(\bR\x11continueOnFailure\x1a:\n" +
+	"\fHeadersEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"Y\n" +
+	"\n" +
+	"HttpMethod\x12\v\n" +
+	"\aUNKNOWN\x10\x00\x12\a\n" +
+	"\x03GET\x10\x01\x12\b\n" +
+	"\x04POST\x10\x02\x12\a\n" +
+	"\x03PUT\x10\x03\x12\n" +
+	"\n" +
+	"\x06DELETE\x10\x04\x12\t\n" +
+	"\x05PATCH\x10\x05\x12\v\n" +
+	"\aOPTIONS\x10\x06B\a\n" +
+	"\x05_body\"\xf8\x01\n" +
+	"\bHttpTest\x12&\n" +
+	"\x05steps\x18\x01 \x03(\v2\x10.HTTPRequestStepR\x05steps\x12L\n" +
+	"\x11initial_variables\x18\x02 \x03(\v2\x1f.HttpTest.InitialVariablesEntryR\x10initialVariables\x121\n" +
+	"\x15stop_on_first_failure\x18\x03 \x01(\bR\x12stopOnFirstFailure\x1aC\n" +
+	"\x15InitialVariablesEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"4\n" +
+	"\vBrowserTest\x12%\n" +
+	"\x0eworkflow_steps\x18\x01 \x03(\tR\rworkflowSteps\"\xbd\x02\n" +
+	"\n" +
+	"TestResult\x12\x17\n" +
+	"\atest_id\x18\x01 \x01(\tR\x06testId\x12.\n" +
+	"\x06status\x18\x02 \x01(\x0e2\x16.TestResult.TestStatusR\x06status\x12%\n" +
+	"\vdescription\x18\x03 \x01(\tH\x00R\vdescription\x88\x01\x01\x12!\n" +
+	"\fdetails_json\x18\x04 \x01(\tR\vdetailsJson\x128\n" +
+	"\ttimestamp\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\"R\n" +
+	"\n" +
+	"TestStatus\x12\v\n" +
+	"\aUNKNOWN\x10\x00\x12\v\n" +
+	"\aPENDING\x10\x01\x12\v\n" +
+	"\aRUNNING\x10\x02\x12\b\n" +
+	"\x04PASS\x10\x03\x12\b\n" +
+	"\x04FAIL\x10\x04\x12\t\n" +
+	"\x05ERROR\x10\x05B\x0e\n" +
+	"\f_description\"\xb0\x01\n" +
+	"\x0eClaudeMetadata\x12\x19\n" +
+	"\bcost_usd\x18\x01 \x01(\x01R\acostUsd\x12\x1f\n" +
+	"\vduration_ms\x18\x02 \x01(\x03R\n" +
+	"durationMs\x12&\n" +
+	"\x0fduration_api_ms\x18\x03 \x01(\x03R\rdurationApiMs\x12\x1b\n" +
+	"\tnum_turns\x18\x04 \x01(\x05R\bnumTurns\x12\x1d\n" +
+	"\n" +
+	"session_id\x18\x05 \x01(\tR\tsessionId\"\x9a\x01\n" +
+	"\aTestLog\x12\x17\n" +
+	"\atest_id\x18\x01 \x01(\tR\x06testId\x128\n" +
+	"\ttimestamp\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\x12\x19\n" +
+	"\blog_type\x18\x03 \x01(\tR\alogType\x12!\n" +
+	"\fdetails_json\x18\x04 \x01(\tR\vdetailsJson\"\xaa\x01\n" +
+	"\bTestInfo\x12\x17\n" +
+	"\atest_id\x18\x01 \x01(\tR\x06testId\x12 \n" +
+	"\vdescription\x18\x02 \x01(\tR\vdescription\x12(\n" +
+	"\thttp_test\x18\x03 \x01(\v2\t.HttpTestH\x00R\bhttpTest\x121\n" +
+	"\fbrowser_test\x18\x04 \x01(\v2\f.BrowserTestH\x00R\vbrowserTestB\x06\n" +
+	"\x04test\"\x96\x06\n" +
+	"\x1bVerificationProgressMessage\x12\x17\n" +
+	"\apush_id\x18\x01 \x01(\tR\x06pushId\x12D\n" +
+	"\x05stage\x18\x02 \x01(\x0e2..VerificationProgressMessage.VerificationStageR\x05stage\x12\x1f\n" +
+	"\x05tests\x18\x03 \x03(\v2\t.TestInfoR\x05tests\x12.\n" +
+	"\ftest_results\x18\x04 \x03(\v2\v.TestResultR\vtestResults\x12(\n" +
+	"\rerror_message\x18\x05 \x01(\tH\x00R\ferrorMessage\x88\x01\x01\x12>\n" +
+	"\n" +
+	"started_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\tstartedAt\x88\x01\x01\x12B\n" +
+	"\fcompleted_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampH\x02R\vcompletedAt\x88\x01\x01\x12=\n" +
+	"\x0fclaude_metadata\x18\b \x01(\v2\x0f.ClaudeMetadataH\x03R\x0eclaudeMetadata\x88\x01\x01\x12%\n" +
+	"\ttest_logs\x18\t \x03(\v2\b.TestLogR\btestLogs\"\xec\x01\n" +
+	"\x11VerificationStage\x12\v\n" +
+	"\aUNKNOWN\x10\x00\x12\x10\n" +
+	"\fINITIALIZING\x10\x01\x12\x12\n" +
+	"\x0eDIFF_GENERATED\x10\x02\x12\x14\n" +
+	"\x10GENERATING_TESTS\x10\x03\x12\x13\n" +
+	"\x0fTESTS_GENERATED\x10\x04\x12\x11\n" +
+	"\rRUNNING_TESTS\x10\x05\x12\x19\n" +
+	"\x15LOCAL_TESTS_COMPLETED\x10\x06\x12\x17\n" +
+	"\x13VERIFYING_TELEMETRY\x10\a\x12\x15\n" +
+	"\x11GENERATING_REPORT\x10\b\x12\x10\n" +
+	"\fREPORT_READY\x10\t\x12\t\n" +
+	"\x05ERROR\x10\n" +
+	"B\x10\n" +
+	"\x0e_error_messageB\r\n" +
+	"\v_started_atB\x0f\n" +
+	"\r_completed_atB\x12\n" +
+	"\x10_claude_metadata\"\x94\x03\n" +
+	"\x1cVerificationProgressResponse\x12\x17\n" +
+	"\apush_id\x18\x01 \x01(\tR\x06pushId\x12H\n" +
+	"\x06status\x18\x02 \x01(\x0e20.VerificationProgressResponse.VerificationStatusR\x06status\x12(\n" +
+	"\rerror_message\x18\x03 \x01(\tH\x00R\ferrorMessage\x88\x01\x01\x12&\n" +
+	"\fagent_report\x18\x04 \x01(\tH\x01R\vagentReport\x88\x01\x01\x12&\n" +
+	"\fhuman_report\x18\x05 \x01(\tH\x02R\vhumanReport\x88\x01\x01\"c\n" +
+	"\x12VerificationStatus\x12\v\n" +
+	"\aUNKNOWN\x10\x00\x12\f\n" +
+	"\bACCEPTED\x10\x01\x12\t\n" +
+	"\x05ERROR\x10\x02\x12\x15\n" +
+	"\x11GENERATING_REPORT\x10\x03\x12\x10\n" +
+	"\fREPORT_READY\x10\x04B\x10\n" +
+	"\x0e_error_messageB\x0f\n" +
+	"\r_agent_reportB\x0f\n" +
+	"\r_human_report\"2\n" +
+	"\vAuthMessage\x12#\n" +
+	"\rsession_token\x18\x01 \x01(\tR\fsessionToken\"\xbc\x01\n" +
+	"\fAuthResponse\x120\n" +
+	"\x06status\x18\x01 \x01(\x0e2\x18.AuthResponse.AuthStatusR\x06status\x12(\n" +
+	"\rerror_message\x18\x02 \x01(\tH\x00R\ferrorMessage\x88\x01\x01\">\n" +
+	"\n" +
+	"AuthStatus\x12\v\n" +
+	"\aUNKNOWN\x10\x00\x12\x11\n" +
+	"\rAUTHENTICATED\x10\x01\x12\x10\n" +
+	"\fUNAUTHORIZED\x10\x02B\x10\n" +
+	"\x0e_error_message\"\x93\x05\n" +
 	"\x10WebsocketMessage\x12@\n" +
 	"\fmessage_type\x18\x01 \x01(\x0e2\x1d.WebsocketMessage.MessageTypeR\vmessageType\x121\n" +
 	"\fpush_message\x18\x02 \x01(\v2\f.PushMessageH\x00R\vpushMessage\x124\n" +
-	"\rpush_response\x18\x03 \x01(\v2\r.PushResponseH\x00R\fpushResponse\"?\n" +
+	"\rpush_response\x18\x03 \x01(\v2\r.PushResponseH\x00R\fpushResponse\x12S\n" +
+	"\x15verification_progress\x18\x04 \x01(\v2\x1c.VerificationProgressMessageH\x00R\x14verificationProgress\x12e\n" +
+	"\x1everification_progress_response\x18\x05 \x01(\v2\x1d.VerificationProgressResponseH\x00R\x1cverificationProgressResponse\x121\n" +
+	"\fauth_message\x18\x06 \x01(\v2\f.AuthMessageH\x00R\vauthMessage\x124\n" +
+	"\rauth_response\x18\a \x01(\v2\r.AuthResponseH\x00R\fauthResponse\"\xa3\x01\n" +
 	"\vMessageType\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12\x10\n" +
 	"\fPUSH_REQUEST\x10\x01\x12\x11\n" +
-	"\rPUSH_RESPONSE\x10\x02B\t\n" +
+	"\rPUSH_RESPONSE\x10\x02\x12\x19\n" +
+	"\x15VERIFICATION_PROGRESS\x10\x03\x12\"\n" +
+	"\x1eVERIFICATION_PROGRESS_RESPONSE\x10\x04\x12\x10\n" +
+	"\fAUTH_REQUEST\x10\x05\x12\x11\n" +
+	"\rAUTH_RESPONSE\x10\x06B\t\n" +
 	"\amessageB:Z8github.com/bifrostinc/code-sync-mcp/code-sync-sidecar/pbb\x06proto3"
 
 var (
@@ -388,25 +2075,76 @@ func file_ws_proto_rawDescGZIP() []byte {
 	return file_ws_proto_rawDescData
 }
 
-var file_ws_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_ws_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_ws_proto_enumTypes = make([]protoimpl.EnumInfo, 9)
+var file_ws_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
 var file_ws_proto_goTypes = []any{
-	(PushResponse_PushStatus)(0),      // 0: PushResponse.PushStatus
-	(WebsocketMessage_MessageType)(0), // 1: WebsocketMessage.MessageType
-	(*PushMessage)(nil),               // 2: PushMessage
-	(*PushResponse)(nil),              // 3: PushResponse
-	(*WebsocketMessage)(nil),          // 4: WebsocketMessage
+	(PushResponse_PushStatus)(0),                         // 0: PushResponse.PushStatus
+	(ResponseAssertion_AssertionType)(0),                 // 1: ResponseAssertion.AssertionType
+	(VariableExtraction_SourceType)(0),                   // 2: VariableExtraction.SourceType
+	(HTTPRequestStep_HttpMethod)(0),                      // 3: HTTPRequestStep.HttpMethod
+	(TestResult_TestStatus)(0),                           // 4: TestResult.TestStatus
+	(VerificationProgressMessage_VerificationStage)(0),   // 5: VerificationProgressMessage.VerificationStage
+	(VerificationProgressResponse_VerificationStatus)(0), // 6: VerificationProgressResponse.VerificationStatus
+	(AuthResponse_AuthStatus)(0),                         // 7: AuthResponse.AuthStatus
+	(WebsocketMessage_MessageType)(0),                    // 8: WebsocketMessage.MessageType
+	(*DatabaseBranchUpdate)(nil),                         // 9: DatabaseBranchUpdate
+	(*PushMessage)(nil),                                  // 10: PushMessage
+	(*PushResponse)(nil),                                 // 11: PushResponse
+	(*ResponseAssertion)(nil),                            // 12: ResponseAssertion
+	(*VariableExtraction)(nil),                           // 13: VariableExtraction
+	(*HTTPRequestStep)(nil),                              // 14: HTTPRequestStep
+	(*HttpTest)(nil),                                     // 15: HttpTest
+	(*BrowserTest)(nil),                                  // 16: BrowserTest
+	(*TestResult)(nil),                                   // 17: TestResult
+	(*ClaudeMetadata)(nil),                               // 18: ClaudeMetadata
+	(*TestLog)(nil),                                      // 19: TestLog
+	(*TestInfo)(nil),                                     // 20: TestInfo
+	(*VerificationProgressMessage)(nil),                  // 21: VerificationProgressMessage
+	(*VerificationProgressResponse)(nil),                 // 22: VerificationProgressResponse
+	(*AuthMessage)(nil),                                  // 23: AuthMessage
+	(*AuthResponse)(nil),                                 // 24: AuthResponse
+	(*WebsocketMessage)(nil),                             // 25: WebsocketMessage
+	nil,                                                  // 26: HTTPRequestStep.HeadersEntry
+	nil,                                                  // 27: HttpTest.InitialVariablesEntry
+	(*timestamppb.Timestamp)(nil),                        // 28: google.protobuf.Timestamp
 }
 var file_ws_proto_depIdxs = []int32{
-	0, // 0: PushResponse.status:type_name -> PushResponse.PushStatus
-	1, // 1: WebsocketMessage.message_type:type_name -> WebsocketMessage.MessageType
-	2, // 2: WebsocketMessage.push_message:type_name -> PushMessage
-	3, // 3: WebsocketMessage.push_response:type_name -> PushResponse
-	4, // [4:4] is the sub-list for method output_type
-	4, // [4:4] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	9,  // 0: PushMessage.database_branch_updates:type_name -> DatabaseBranchUpdate
+	0,  // 1: PushResponse.status:type_name -> PushResponse.PushStatus
+	1,  // 2: ResponseAssertion.type:type_name -> ResponseAssertion.AssertionType
+	2,  // 3: VariableExtraction.source:type_name -> VariableExtraction.SourceType
+	3,  // 4: HTTPRequestStep.method:type_name -> HTTPRequestStep.HttpMethod
+	26, // 5: HTTPRequestStep.headers:type_name -> HTTPRequestStep.HeadersEntry
+	13, // 6: HTTPRequestStep.extract_variables:type_name -> VariableExtraction
+	12, // 7: HTTPRequestStep.assertions:type_name -> ResponseAssertion
+	14, // 8: HttpTest.steps:type_name -> HTTPRequestStep
+	27, // 9: HttpTest.initial_variables:type_name -> HttpTest.InitialVariablesEntry
+	4,  // 10: TestResult.status:type_name -> TestResult.TestStatus
+	28, // 11: TestResult.timestamp:type_name -> google.protobuf.Timestamp
+	28, // 12: TestLog.timestamp:type_name -> google.protobuf.Timestamp
+	15, // 13: TestInfo.http_test:type_name -> HttpTest
+	16, // 14: TestInfo.browser_test:type_name -> BrowserTest
+	5,  // 15: VerificationProgressMessage.stage:type_name -> VerificationProgressMessage.VerificationStage
+	20, // 16: VerificationProgressMessage.tests:type_name -> TestInfo
+	17, // 17: VerificationProgressMessage.test_results:type_name -> TestResult
+	28, // 18: VerificationProgressMessage.started_at:type_name -> google.protobuf.Timestamp
+	28, // 19: VerificationProgressMessage.completed_at:type_name -> google.protobuf.Timestamp
+	18, // 20: VerificationProgressMessage.claude_metadata:type_name -> ClaudeMetadata
+	19, // 21: VerificationProgressMessage.test_logs:type_name -> TestLog
+	6,  // 22: VerificationProgressResponse.status:type_name -> VerificationProgressResponse.VerificationStatus
+	7,  // 23: AuthResponse.status:type_name -> AuthResponse.AuthStatus
+	8,  // 24: WebsocketMessage.message_type:type_name -> WebsocketMessage.MessageType
+	10, // 25: WebsocketMessage.push_message:type_name -> PushMessage
+	11, // 26: WebsocketMessage.push_response:type_name -> PushResponse
+	21, // 27: WebsocketMessage.verification_progress:type_name -> VerificationProgressMessage
+	22, // 28: WebsocketMessage.verification_progress_response:type_name -> VerificationProgressResponse
+	23, // 29: WebsocketMessage.auth_message:type_name -> AuthMessage
+	24, // 30: WebsocketMessage.auth_response:type_name -> AuthResponse
+	31, // [31:31] is the sub-list for method output_type
+	31, // [31:31] is the sub-list for method input_type
+	31, // [31:31] is the sub-list for extension type_name
+	31, // [31:31] is the sub-list for extension extendee
+	0,  // [0:31] is the sub-list for field type_name
 }
 
 func init() { file_ws_proto_init() }
@@ -414,17 +2152,32 @@ func file_ws_proto_init() {
 	if File_ws_proto != nil {
 		return
 	}
-	file_ws_proto_msgTypes[2].OneofWrappers = []any{
+	file_ws_proto_msgTypes[3].OneofWrappers = []any{}
+	file_ws_proto_msgTypes[4].OneofWrappers = []any{}
+	file_ws_proto_msgTypes[5].OneofWrappers = []any{}
+	file_ws_proto_msgTypes[8].OneofWrappers = []any{}
+	file_ws_proto_msgTypes[11].OneofWrappers = []any{
+		(*TestInfo_HttpTest)(nil),
+		(*TestInfo_BrowserTest)(nil),
+	}
+	file_ws_proto_msgTypes[12].OneofWrappers = []any{}
+	file_ws_proto_msgTypes[13].OneofWrappers = []any{}
+	file_ws_proto_msgTypes[15].OneofWrappers = []any{}
+	file_ws_proto_msgTypes[16].OneofWrappers = []any{
 		(*WebsocketMessage_PushMessage)(nil),
 		(*WebsocketMessage_PushResponse)(nil),
+		(*WebsocketMessage_VerificationProgress)(nil),
+		(*WebsocketMessage_VerificationProgressResponse)(nil),
+		(*WebsocketMessage_AuthMessage)(nil),
+		(*WebsocketMessage_AuthResponse)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_ws_proto_rawDesc), len(file_ws_proto_rawDesc)),
-			NumEnums:      2,
-			NumMessages:   3,
+			NumEnums:      9,
+			NumMessages:   19,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

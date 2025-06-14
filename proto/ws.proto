@@ -1,12 +1,28 @@
 syntax = "proto3";
 
+import "google/protobuf/timestamp.proto";
+
 option go_package = "github.com/bifrostinc/code-sync-mcp/code-sync-sidecar/pb";
+
+message DatabaseBranchUpdate {
+    string database_name = 1;
+    string previous_branch_id = 2;
+    string new_branch_id = 3;
+    bool branch_created = 4;      // True if new_branch was created
+    string parent_branch_id = 5;  // Set when branch_created=true
+}
 
 message PushMessage {
     string push_id = 1;
     bytes batch_file = 2;
     string code_diff = 3;
     string change_description = 4;
+    // Diff metadata fields (merged from DiffMetadata)
+    int32 files_changed = 5;
+    int32 additions = 6;
+    int32 deletions = 7;
+    // New field for branch updates
+    repeated DatabaseBranchUpdate database_branch_updates = 8;
 }
 message PushResponse {
     enum PushStatus {
@@ -22,19 +38,181 @@ message PushResponse {
     string push_id = 3;
 }
 
+message ResponseAssertion {
+    enum AssertionType {
+        UNKNOWN = 0;
+        STATUS_CODE = 1;
+        JSON_PATH = 2;
+        HEADER = 3;
+        BODY_CONTAINS = 4;
+    }
+    AssertionType type = 1;
+    string expected = 2; // JSON-encoded expected value
+    optional string path = 3; // JSONPath for json_path assertions, header name for header assertions
+}
+
+message VariableExtraction {
+    enum SourceType {
+        UNKNOWN = 0;
+        JSON = 1;
+        HEADER = 2;
+        STATUS_CODE = 3;
+    }
+    string name = 1;
+    SourceType source = 2;
+    optional string path = 3; // JSONPath for json source, header name for header source
+}
+
+message HTTPRequestStep {
+    enum HttpMethod {
+        UNKNOWN = 0;
+        GET = 1;
+        POST = 2;
+        PUT = 3;
+        DELETE = 4;
+        PATCH = 5;
+        OPTIONS = 6;
+    }
+    string step_name = 1;
+    HttpMethod method = 2;
+    string path = 3;
+    map<string, string> headers = 4;
+    optional string body = 5;
+    repeated VariableExtraction extract_variables = 6;
+    repeated ResponseAssertion assertions = 7;
+    repeated string depends_on = 8;
+    bool continue_on_failure = 9;
+}
+
+message HttpTest {
+    repeated HTTPRequestStep steps = 1;
+    map<string, string> initial_variables = 2; // JSON-encoded initial variables
+    bool stop_on_first_failure = 3;
+}
+
+message BrowserTest {
+    repeated string workflow_steps = 1;
+}
+
+message TestResult {
+    enum TestStatus {
+        UNKNOWN = 0;
+        PENDING = 1;
+        RUNNING = 2;
+        PASS = 3;
+        FAIL = 4;
+        ERROR = 5;
+    }
+
+    string test_id = 1;
+    TestStatus status = 2;
+    optional string description = 3;
+    string details_json = 4; // JSON-encoded details
+    google.protobuf.Timestamp timestamp = 5;
+}
+
+message ClaudeMetadata {
+    double cost_usd = 1;
+    int64 duration_ms = 2;
+    int64 duration_api_ms = 3;
+    int32 num_turns = 4;
+    string session_id = 5;
+}
+
+message TestLog {
+    string test_id = 1;
+    google.protobuf.Timestamp timestamp = 2;
+    string log_type = 3;
+    string details_json = 4; // JSON-encoded details
+}
+
+message TestInfo {
+    string test_id = 1;
+    string description = 2;
+    oneof test {
+        HttpTest http_test = 3;
+        BrowserTest browser_test = 4;
+    }
+}
+
+message VerificationProgressMessage {
+    enum VerificationStage {
+        UNKNOWN = 0;
+        INITIALIZING = 1;
+        DIFF_GENERATED = 2;
+        GENERATING_TESTS = 3;
+        TESTS_GENERATED = 4;
+        RUNNING_TESTS = 5;
+        LOCAL_TESTS_COMPLETED = 6;
+        VERIFYING_TELEMETRY = 7;
+        GENERATING_REPORT = 8;
+        REPORT_READY = 9;
+        ERROR = 10;
+    }
+
+    string push_id = 1;
+    VerificationStage stage = 2;
+    repeated TestInfo tests = 3;
+    repeated TestResult test_results = 4;
+    optional string error_message = 5;
+    optional google.protobuf.Timestamp started_at = 6;
+    optional google.protobuf.Timestamp completed_at = 7;
+    optional ClaudeMetadata claude_metadata = 8;
+    repeated TestLog test_logs = 9;
+}
+
+message VerificationProgressResponse {
+    enum VerificationStatus {
+        UNKNOWN = 0;
+        ACCEPTED = 1;
+        ERROR = 2;
+        GENERATING_REPORT = 3;
+        REPORT_READY = 4;
+    }
+
+    string push_id = 1;
+    VerificationStatus status = 2;
+    optional string error_message = 3;
+    optional string agent_report = 4;
+    optional string human_report = 5;
+}
+
+message AuthMessage {
+    string session_token = 1;
+}
+
+message AuthResponse {
+    enum AuthStatus {
+        UNKNOWN = 0;
+        AUTHENTICATED = 1;
+        UNAUTHORIZED = 2;
+    }
+    
+    AuthStatus status = 1;
+    optional string error_message = 2;
+}
+
 message WebsocketMessage {
 
     enum MessageType {
         UNKNOWN = 0;
         PUSH_REQUEST = 1;
         PUSH_RESPONSE = 2;
-   }
+        VERIFICATION_PROGRESS = 3;
+        VERIFICATION_PROGRESS_RESPONSE = 4;
+        AUTH_REQUEST = 5;
+        AUTH_RESPONSE = 6;
+    }
 
     MessageType message_type = 1;
     oneof message {
         PushMessage push_message = 2;
         PushResponse push_response = 3;
-   }
+        VerificationProgressMessage verification_progress = 4;
+        VerificationProgressResponse verification_progress_response = 5;
+        AuthMessage auth_message = 6;
+        AuthResponse auth_response = 7;
+    }
 }
 
 
