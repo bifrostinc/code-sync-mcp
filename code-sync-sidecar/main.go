@@ -80,7 +80,6 @@ func main() {
 		log.Fatal("Failed to copy binaries", zap.Error(err))
 	}
 
-
 	// Create a context that will be canceled on SIGTERM/SIGINT
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -181,4 +180,3 @@ func copyBinaries(filesDir string) error {
 	log.Info("Successfully set up binaries", zap.String("targetDir", filesDir))
 	return nil
 }
-

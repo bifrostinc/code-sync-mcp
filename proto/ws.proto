@@ -7,7 +7,11 @@ message PushMessage {
     bytes batch_file = 2;
     string code_diff = 3;
     string change_description = 4;
-    map<string, string> environment_variables = 5;
+    // Diff metadata fields (merged from DiffMetadata)
+    int32 files_changed = 5;
+    int32 additions = 6;
+    int32 deletions = 7;
+    map<string, string> environment_variables = 8;
 }
 message PushResponse {
     enum PushStatus {

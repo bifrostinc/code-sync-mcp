@@ -126,12 +126,16 @@ func (WebsocketMessage_MessageType) EnumDescriptor() ([]byte, []int) {
 }
 
 type PushMessage struct {
-	state                protoimpl.MessageState `protogen:"open.v1"`
-	PushId               string                 `protobuf:"bytes,1,opt,name=push_id,json=pushId,proto3" json:"push_id,omitempty"`
-	BatchFile            []byte                 `protobuf:"bytes,2,opt,name=batch_file,json=batchFile,proto3" json:"batch_file,omitempty"`
-	CodeDiff             string                 `protobuf:"bytes,3,opt,name=code_diff,json=codeDiff,proto3" json:"code_diff,omitempty"`
-	ChangeDescription    string                 `protobuf:"bytes,4,opt,name=change_description,json=changeDescription,proto3" json:"change_description,omitempty"`
-	EnvironmentVariables map[string]string      `protobuf:"bytes,5,rep,name=environment_variables,json=environmentVariables,proto3" json:"environment_variables,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	PushId            string                 `protobuf:"bytes,1,opt,name=push_id,json=pushId,proto3" json:"push_id,omitempty"`
+	BatchFile         []byte                 `protobuf:"bytes,2,opt,name=batch_file,json=batchFile,proto3" json:"batch_file,omitempty"`
+	CodeDiff          string                 `protobuf:"bytes,3,opt,name=code_diff,json=codeDiff,proto3" json:"code_diff,omitempty"`
+	ChangeDescription string                 `protobuf:"bytes,4,opt,name=change_description,json=changeDescription,proto3" json:"change_description,omitempty"`
+	// Diff metadata fields (merged from DiffMetadata)
+	FilesChanged         int32             `protobuf:"varint,5,opt,name=files_changed,json=filesChanged,proto3" json:"files_changed,omitempty"`
+	Additions            int32             `protobuf:"varint,6,opt,name=additions,proto3" json:"additions,omitempty"`
+	Deletions            int32             `protobuf:"varint,7,opt,name=deletions,proto3" json:"deletions,omitempty"`
+	EnvironmentVariables map[string]string `protobuf:"bytes,8,rep,name=environment_variables,json=environmentVariables,proto3" json:"environment_variables,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
@@ -192,6 +196,27 @@ func (x *PushMessage) GetChangeDescription() string {
 		return x.ChangeDescription
 	}
 	return ""
+}
+
+func (x *PushMessage) GetFilesChanged() int32 {
+	if x != nil {
+		return x.FilesChanged
+	}
+	return 0
+}
+
+func (x *PushMessage) GetAdditions() int32 {
+	if x != nil {
+		return x.Additions
+	}
+	return 0
+}
+
+func (x *PushMessage) GetDeletions() int32 {
+	if x != nil {
+		return x.Deletions
+	}
+	return 0
 }
 
 func (x *PushMessage) GetEnvironmentVariables() map[string]string {
@@ -355,14 +380,17 @@ var File_ws_proto protoreflect.FileDescriptor
 
 const file_ws_proto_rawDesc = "" +
 	"\n" +
-	"\bws.proto\"\xb7\x02\n" +
+	"\bws.proto\"\x98\x03\n" +
 	"\vPushMessage\x12\x17\n" +
 	"\apush_id\x18\x01 \x01(\tR\x06pushId\x12\x1d\n" +
 	"\n" +
 	"batch_file\x18\x02 \x01(\fR\tbatchFile\x12\x1b\n" +
 	"\tcode_diff\x18\x03 \x01(\tR\bcodeDiff\x12-\n" +
-	"\x12change_description\x18\x04 \x01(\tR\x11changeDescription\x12[\n" +
-	"\x15environment_variables\x18\x05 \x03(\v2&.PushMessage.EnvironmentVariablesEntryR\x14environmentVariables\x1aG\n" +
+	"\x12change_description\x18\x04 \x01(\tR\x11changeDescription\x12#\n" +
+	"\rfiles_changed\x18\x05 \x01(\x05R\ffilesChanged\x12\x1c\n" +
+	"\tadditions\x18\x06 \x01(\x05R\tadditions\x12\x1c\n" +
+	"\tdeletions\x18\a \x01(\x05R\tdeletions\x12[\n" +
+	"\x15environment_variables\x18\b \x03(\v2&.PushMessage.EnvironmentVariablesEntryR\x14environmentVariables\x1aG\n" +
 	"\x19EnvironmentVariablesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xd2\x01\n" +

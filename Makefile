@@ -12,14 +12,15 @@ DIST_DIR := dist
 
 help:
 	@echo "Available commands:"
-	@echo "  sidecar-docker           - Build and push sidecar image to Docker"
-	@echo "  sidecar-local            - Build sidecar image locally for docker-compose"
-	@echo "  build-rsync-static       - Build static rsync binaries for amd64 and arm64"
-	@echo "  mcp-pypi-build          - Build Python package for PyPI"
-	@echo "  mcp-pypi-test           - Upload package to TestPyPI"
-	@echo "  mcp-pypi-publish        - Upload package to production PyPI"
-	@echo "  mcp-pypi-clean          - Clean build artifacts"
-	@echo "  mcp-pypi-install-test   - Install package from TestPyPI"
+	@echo "  sidecar-docker         - Build and push sidecar image to Docker"
+	@echo "  sidecar-local          - Build sidecar image locally for docker-compose"
+	@echo "  build-rsync-static     - Build static rsync binaries for amd64 and arm64"
+	@echo "  mcp-pypi-build         - Build Python package for PyPI"
+	@echo "  mcp-pypi-test          - Upload package to TestPyPI"
+	@echo "  mcp-pypi-publish       - Upload package to production PyPI"
+	@echo "  mcp-pypi-clean         - Clean build artifacts"
+	@echo "  mcp-pypi-install-test  - Install package from TestPyPI"
+	@echo "  proto                  - Generate protobuf files"
 
 setup-buildx:
 	@if ! docker buildx ls | grep -q "$(BUILDX_BUILDER)"; then \

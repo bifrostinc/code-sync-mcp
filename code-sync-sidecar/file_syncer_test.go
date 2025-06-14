@@ -336,8 +336,8 @@ func TestApplyPushMessage(t *testing.T) {
 			name:           "empty batch data with env vars",
 			batchData:      []byte{},
 			envVars:        map[string]string{"TEST_VAR": "test_value", "DB_URL": "postgres://localhost/test"},
-			expectSignal:   true,  // Signal sent even for env-only updates
-			expectResponse: true,  // Message sent for successful env update
+			expectSignal:   true, // Signal sent even for env-only updates
+			expectResponse: true, // Message sent for successful env update
 			expectedErr:    "",
 		},
 		{
@@ -436,8 +436,8 @@ func TestApplyPushMessage(t *testing.T) {
 
 			// Run the function under test
 			err := rw.handlePushRequest(&pb.PushMessage{
-				PushId: pushID, 
-				BatchFile: tt.batchData,
+				PushId:               pushID,
+				BatchFile:            tt.batchData,
 				EnvironmentVariables: tt.envVars,
 			})
 
@@ -502,7 +502,7 @@ func TestApplyPushMessage(t *testing.T) {
 				envFilePath := rw.envManager.GetEnvFilePath()
 				envContent, err := os.ReadFile(envFilePath)
 				require.NoError(t, err, "Should be able to read environment file")
-				
+
 				envStr := string(envContent)
 				for key, value := range tt.envVars {
 					expectedLine := fmt.Sprintf("export %s=%s", key, value)

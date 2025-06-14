@@ -23,7 +23,7 @@ type EnvironmentManager struct {
 func NewEnvironmentManager(targetSyncDir string) *EnvironmentManager {
 	sidecarDir := getSidecarDir(targetSyncDir)
 	envFilePath := filepath.Join(sidecarDir, ".env")
-	
+
 	return &EnvironmentManager{
 		envFilePath: envFilePath,
 	}
@@ -37,7 +37,7 @@ func (em *EnvironmentManager) UpdateFromPush(envVariables map[string]string) err
 		envVariables = make(map[string]string)
 	}
 
-	log.Info("Updating environment variables from push", 
+	log.Info("Updating environment variables from push",
 		zap.Int("numVariables", len(envVariables)),
 		zap.String("envFilePath", em.envFilePath))
 
@@ -46,10 +46,8 @@ func (em *EnvironmentManager) UpdateFromPush(envVariables map[string]string) err
 		return fmt.Errorf("failed to create sidecar directory: %w", err)
 	}
 
-	// Build the .env file content
-	var lines []string
-	
 	// Sort keys for consistent output and easier testing
+	var lines []string
 	var keys []string
 	for key := range envVariables {
 		keys = append(keys, key)
@@ -66,21 +64,20 @@ func (em *EnvironmentManager) UpdateFromPush(envVariables map[string]string) err
 
 	content := strings.Join(lines, "\n")
 	if len(lines) > 0 {
-		content += "\n" // Add trailing newline
+		content += "\n"
 	}
 
-	// Write the .env file atomically using a temporary file
 	tempFile := em.envFilePath + ".tmp"
 	if err := os.WriteFile(tempFile, []byte(content), 0644); err != nil {
 		return fmt.Errorf("failed to write temporary env file: %w", err)
 	}
 
 	if err := os.Rename(tempFile, em.envFilePath); err != nil {
-		os.Remove(tempFile) // Clean up on failure
+		os.Remove(tempFile)
 		return fmt.Errorf("failed to replace env file: %w", err)
 	}
 
-	log.Info("Successfully updated environment file", 
+	log.Info("Successfully updated environment file",
 		zap.String("path", em.envFilePath),
 		zap.Int("variables", len(envVariables)))
 
@@ -103,10 +100,10 @@ func escapeEnvValue(value string) string {
 	// Check if the value needs escaping (contains spaces, quotes, or special chars)
 	needsEscaping := false
 	for _, char := range value {
-		if char == ' ' || char == '\t' || char == '\n' || char == '\r' || 
-		   char == '"' || char == '\'' || char == '\\' || char == '$' ||
-		   char == '`' || char == '|' || char == '&' || char == ';' ||
-		   char == '(' || char == ')' || char == '<' || char == '>' {
+		if char == ' ' || char == '\t' || char == '\n' || char == '\r' ||
+			char == '"' || char == '\'' || char == '\\' || char == '$' ||
+			char == '`' || char == '|' || char == '&' || char == ';' ||
+			char == '(' || char == ')' || char == '<' || char == '>' {
 			needsEscaping = true
 			break
 		}

@@ -224,9 +224,11 @@ func (rw *FileSyncer) handlePushRequest(pushMsg *pb.PushMessage) error {
 	batchData := pushMsg.BatchFile
 	envVariables := pushMsg.EnvironmentVariables
 
-	log.Info("Processing push request", 
+	log.Info("Processing push request",
 		zap.String("pushID", pushID),
+		zap.Bool("hasBatchData", len(batchData) > 0),
 		zap.Int("batchSize", len(batchData)),
+		zap.Bool("hasEnvVars", len(envVariables) > 0),
 		zap.Int("envVars", len(envVariables)))
 
 	// Update environment variables first (always do this, even if no batch data)
