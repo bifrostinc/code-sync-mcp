@@ -122,6 +122,15 @@ start_app() {
         unset BIFROST_PUSH_ID
     fi
 
+    # Source environment variables if they exist
+    ENV_FILE="${SIDECAR_DIR}/.env"
+    if [ -f "$ENV_FILE" ]; then
+        echo "[code-sync] Sourcing environment variables from $ENV_FILE"
+        . "$ENV_FILE"
+    else
+        echo "[code-sync] No environment file found at $ENV_FILE"
+    fi
+
     # Kill previous instance if it exists
     if [ -f "$APP_PID_FILE" ]; then
         old_pid=$(cat "$APP_PID_FILE")
