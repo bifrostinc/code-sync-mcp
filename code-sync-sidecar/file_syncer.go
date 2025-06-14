@@ -221,44 +221,101 @@ func (rw *FileSyncer) handlePushRequest(pushMsg *pb.PushMessage) error {
 	pushID := pushMsg.PushId
 	batchData := pushMsg.BatchFile
 
-	if len(batchData) == 0 {
-		log.Info("Received empty batch data. Nothing to apply.")
-		return nil // Not an error, just nothing to do
+	// Log database branch updates if present
+	if len(pushMsg.DatabaseBranchUpdates) > 0 {
+		log.Info("Received database branch updates",
+			zap.String("pushID", pushID),
+			zap.Int("updateCount", len(pushMsg.DatabaseBranchUpdates)))
+
+		for i, update := range pushMsg.DatabaseBranchUpdates {
+			log.Info("Database branch update",
+				zap.Int("index", i),
+				zap.String("databaseName", update.DatabaseName),
+				zap.String("previousBranchId", update.PreviousBranchId),
+				zap.String("newBranchId", update.NewBranchId),
+				zap.Bool("branchCreated", update.BranchCreated),
+				zap.String("parentBranchId", update.ParentBranchId))
+		}
+
+		// Process database branch updates
+		if err := rw.processDatabaseBranchUpdates(pushMsg.DatabaseBranchUpdates); err != nil {
+			log.Error("Failed to process database branch updates", zap.Error(err))
+			// Don't fail the entire push for database updates, just log the error
+			// This ensures backward compatibility
+		}
+	} else {
+		log.Info("No database branch updates in push message", zap.String("pushID", pushID))
 	}
 
-	// Apply the rsync batch
-	if err := rw.applyRsyncBatch(batchData); err != nil {
-		log.Error("Failed to apply rsync batch", zap.Error(err))
-		// Send PushResponse with FAILED status
-		rw.sendProtoMessage(buildPushResponse(pushID, pb.PushResponse_FAILED, fmt.Sprintf("Push application failed: %v", err)))
-		return fmt.Errorf("push application failed: %w", err)
+	// Handle code changes if present
+	if len(batchData) > 0 {
+		// Apply the rsync batch
+		if err := rw.applyRsyncBatch(batchData); err != nil {
+			log.Error("Failed to apply rsync batch", zap.Error(err))
+			// Send PushResponse with FAILED status
+			rw.sendProtoMessage(buildPushResponse(pushID, pb.PushResponse_FAILED, fmt.Sprintf("Push application failed: %v", err)))
+			return fmt.Errorf("push application failed: %w", err)
+		}
+
+		log.Info("Rsync batch applied successfully.")
+
+		// Write pushID to a file for the launcher script, it will get used by the launcher script.
+		launcherDir := getLauncherDir(rw.targetSyncDir)
+		pushIDFilePath := filepath.Join(launcherDir, "push_id")
+
+		// Ensure the launcher dir exists (should be created by the script, but double-check)
+		if err := os.MkdirAll(launcherDir, 0777); err != nil {
+			return fmt.Errorf("failed to ensure launcher directory exists: %w", err)
+		}
+
+		// Write the pushID to the file
+		if err := os.WriteFile(pushIDFilePath, []byte(pushID), 0644); err != nil {
+			return fmt.Errorf("failed to write pushID to file: %w", err)
+		}
+		log.Info("Successfully wrote pushID to file", zap.String("path", pushIDFilePath), zap.String("pushID", pushID))
+
+		if err := sendSignalToLauncher(rw.targetSyncDir, rw.processFinder); err != nil {
+			log.Error("Failed to send SIGHUP", zap.Error(err))
+			rw.sendProtoMessage(buildPushResponse(pushID, pb.PushResponse_FAILED, fmt.Sprintf("Failed to send SIGHUP: %v", err)))
+			return fmt.Errorf("failed to send SIGHUP: %w", err)
+		}
+
+		log.Info("SIGHUP sent successfully. Sending ACK to proxy.")
+	} else {
+		log.Info("No code changes to apply, database updates only.")
 	}
 
-	log.Info("Rsync batch applied successfully.")
-
-	// Write pushID to a file for the launcher script, it will get used by the launcher script.
-	launcherDir := getLauncherDir(rw.targetSyncDir)
-	pushIDFilePath := filepath.Join(launcherDir, "push_id")
-
-	// Ensure the launcher dir exists (should be created by the script, but double-check)
-	if err := os.MkdirAll(launcherDir, 0777); err != nil {
-		return fmt.Errorf("failed to ensure launcher directory exists: %w", err)
-	}
-
-	// Write the pushID to the file
-	if err := os.WriteFile(pushIDFilePath, []byte(pushID), 0644); err != nil {
-		return fmt.Errorf("failed to write pushID to file: %w", err)
-	}
-	log.Info("Successfully wrote pushID to file", zap.String("path", pushIDFilePath), zap.String("pushID", pushID))
-
-	if err := sendSignalToLauncher(rw.targetSyncDir, rw.processFinder); err != nil {
-		log.Error("Failed to send SIGHUP", zap.Error(err))
-		rw.sendProtoMessage(buildPushResponse(pushID, pb.PushResponse_FAILED, fmt.Sprintf("Failed to send SIGHUP: %v", err)))
-		return fmt.Errorf("failed to send SIGHUP: %w", err)
-	}
-
-	log.Info("SIGHUP sent successfully. Sending ACK to proxy.")
+	// Always send a success response, regardless of whether there were code changes
 	rw.sendProtoMessage(buildPushResponse(pushID, pb.PushResponse_COMPLETED, ""))
+
+	return nil
+}
+
+// processDatabaseBranchUpdates handles database branch updates by refreshing the env file
+func (rw *FileSyncer) processDatabaseBranchUpdates(updates []*pb.DatabaseBranchUpdate) error {
+	if len(updates) == 0 {
+		return nil
+	}
+
+	log.Info("Processing database branch updates",
+		zap.Int("count", len(updates)),
+		zap.String("deploymentID", rw.deploymentID))
+
+	// Call the API to get the latest database environment variables
+	// This will include the updated branch connections
+	if err := writeDatabaseEnvFile(rw.apiURL, rw.apiKey, rw.deploymentID, rw.targetSyncDir); err != nil {
+		return fmt.Errorf("failed to refresh database env file: %w", err)
+	}
+
+	log.Info("Successfully refreshed database environment variables after branch update")
+
+	// Send SIGHUP to notify the application about the database connection changes
+	if err := sendSignalToLauncher(rw.targetSyncDir, rw.processFinder); err != nil {
+		log.Error("Failed to send SIGHUP after database update", zap.Error(err))
+		return fmt.Errorf("failed to send SIGHUP after database update: %w", err)
+	}
+
+	log.Info("SIGHUP sent successfully after database branch update")
 
 	return nil
 }

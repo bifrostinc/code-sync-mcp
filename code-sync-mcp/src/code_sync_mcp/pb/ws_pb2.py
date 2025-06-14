@@ -22,9 +22,10 @@ _runtime_version.ValidateProtobufRuntimeVersion(
 _sym_db = _symbol_database.Default()
 
 
+from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x08ws.proto\"a\n\x0bPushMessage\x12\x0f\n\x07push_id\x18\x01 \x01(\t\x12\x12\n\nbatch_file\x18\x02 \x01(\x0c\x12\x11\n\tcode_diff\x18\x03 \x01(\t\x12\x1a\n\x12\x63hange_description\x18\x04 \x01(\t\"\xb4\x01\n\x0cPushResponse\x12(\n\x06status\x18\x01 \x01(\x0e\x32\x18.PushResponse.PushStatus\x12\x15\n\rerror_message\x18\x02 \x01(\t\x12\x0f\n\x07push_id\x18\x03 \x01(\t\"R\n\nPushStatus\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x0b\n\x07PENDING\x10\x01\x12\x0f\n\x0bIN_PROGRESS\x10\x02\x12\n\n\x06\x46\x41ILED\x10\x03\x12\r\n\tCOMPLETED\x10\x04\"\xe1\x01\n\x10WebsocketMessage\x12\x33\n\x0cmessage_type\x18\x01 \x01(\x0e\x32\x1d.WebsocketMessage.MessageType\x12$\n\x0cpush_message\x18\x02 \x01(\x0b\x32\x0c.PushMessageH\x00\x12&\n\rpush_response\x18\x03 \x01(\x0b\x32\r.PushResponseH\x00\"?\n\x0bMessageType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x10\n\x0cPUSH_REQUEST\x10\x01\x12\x11\n\rPUSH_RESPONSE\x10\x02\x42\t\n\x07messageB:Z8github.com/bifrostinc/code-sync-mcp/code-sync-sidecar/pbb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x08ws.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x92\x01\n\x14\x44\x61tabaseBranchUpdate\x12\x15\n\rdatabase_name\x18\x01 \x01(\t\x12\x1a\n\x12previous_branch_id\x18\x02 \x01(\t\x12\x15\n\rnew_branch_id\x18\x03 \x01(\t\x12\x16\n\x0e\x62ranch_created\x18\x04 \x01(\x08\x12\x18\n\x10parent_branch_id\x18\x05 \x01(\t\"\xd6\x01\n\x0bPushMessage\x12\x0f\n\x07push_id\x18\x01 \x01(\t\x12\x12\n\nbatch_file\x18\x02 \x01(\x0c\x12\x11\n\tcode_diff\x18\x03 \x01(\t\x12\x1a\n\x12\x63hange_description\x18\x04 \x01(\t\x12\x15\n\rfiles_changed\x18\x05 \x01(\x05\x12\x11\n\tadditions\x18\x06 \x01(\x05\x12\x11\n\tdeletions\x18\x07 \x01(\x05\x12\x36\n\x17\x64\x61tabase_branch_updates\x18\x08 \x03(\x0b\x32\x15.DatabaseBranchUpdate\"\xb4\x01\n\x0cPushResponse\x12(\n\x06status\x18\x01 \x01(\x0e\x32\x18.PushResponse.PushStatus\x12\x15\n\rerror_message\x18\x02 \x01(\t\x12\x0f\n\x07push_id\x18\x03 \x01(\t\"R\n\nPushStatus\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x0b\n\x07PENDING\x10\x01\x12\x0f\n\x0bIN_PROGRESS\x10\x02\x12\n\n\x06\x46\x41ILED\x10\x03\x12\r\n\tCOMPLETED\x10\x04\"\xce\x01\n\x11ResponseAssertion\x12.\n\x04type\x18\x01 \x01(\x0e\x32 .ResponseAssertion.AssertionType\x12\x10\n\x08\x65xpected\x18\x02 \x01(\t\x12\x11\n\x04path\x18\x03 \x01(\tH\x00\x88\x01\x01\"[\n\rAssertionType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x0f\n\x0bSTATUS_CODE\x10\x01\x12\r\n\tJSON_PATH\x10\x02\x12\n\n\x06HEADER\x10\x03\x12\x11\n\rBODY_CONTAINS\x10\x04\x42\x07\n\x05_path\"\xb0\x01\n\x12VariableExtraction\x12\x0c\n\x04name\x18\x01 \x01(\t\x12.\n\x06source\x18\x02 \x01(\x0e\x32\x1e.VariableExtraction.SourceType\x12\x11\n\x04path\x18\x03 \x01(\tH\x00\x88\x01\x01\"@\n\nSourceType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x08\n\x04JSON\x10\x01\x12\n\n\x06HEADER\x10\x02\x12\x0f\n\x0bSTATUS_CODE\x10\x03\x42\x07\n\x05_path\"\xbf\x03\n\x0fHTTPRequestStep\x12\x11\n\tstep_name\x18\x01 \x01(\t\x12+\n\x06method\x18\x02 \x01(\x0e\x32\x1b.HTTPRequestStep.HttpMethod\x12\x0c\n\x04path\x18\x03 \x01(\t\x12.\n\x07headers\x18\x04 \x03(\x0b\x32\x1d.HTTPRequestStep.HeadersEntry\x12\x11\n\x04\x62ody\x18\x05 \x01(\tH\x00\x88\x01\x01\x12.\n\x11\x65xtract_variables\x18\x06 \x03(\x0b\x32\x13.VariableExtraction\x12&\n\nassertions\x18\x07 \x03(\x0b\x32\x12.ResponseAssertion\x12\x12\n\ndepends_on\x18\x08 \x03(\t\x12\x1b\n\x13\x63ontinue_on_failure\x18\t \x01(\x08\x1a.\n\x0cHeadersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"Y\n\nHttpMethod\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x07\n\x03GET\x10\x01\x12\x08\n\x04POST\x10\x02\x12\x07\n\x03PUT\x10\x03\x12\n\n\x06\x44\x45LETE\x10\x04\x12\t\n\x05PATCH\x10\x05\x12\x0b\n\x07OPTIONS\x10\x06\x42\x07\n\x05_body\"\xbf\x01\n\x08HttpTest\x12\x1f\n\x05steps\x18\x01 \x03(\x0b\x32\x10.HTTPRequestStep\x12:\n\x11initial_variables\x18\x02 \x03(\x0b\x32\x1f.HttpTest.InitialVariablesEntry\x12\x1d\n\x15stop_on_first_failure\x18\x03 \x01(\x08\x1a\x37\n\x15InitialVariablesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"%\n\x0b\x42rowserTest\x12\x16\n\x0eworkflow_steps\x18\x01 \x03(\t\"\x88\x02\n\nTestResult\x12\x0f\n\x07test_id\x18\x01 \x01(\t\x12&\n\x06status\x18\x02 \x01(\x0e\x32\x16.TestResult.TestStatus\x12\x18\n\x0b\x64\x65scription\x18\x03 \x01(\tH\x00\x88\x01\x01\x12\x14\n\x0c\x64\x65tails_json\x18\x04 \x01(\t\x12-\n\ttimestamp\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"R\n\nTestStatus\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x0b\n\x07PENDING\x10\x01\x12\x0b\n\x07RUNNING\x10\x02\x12\x08\n\x04PASS\x10\x03\x12\x08\n\x04\x46\x41IL\x10\x04\x12\t\n\x05\x45RROR\x10\x05\x42\x0e\n\x0c_description\"w\n\x0e\x43laudeMetadata\x12\x10\n\x08\x63ost_usd\x18\x01 \x01(\x01\x12\x13\n\x0b\x64uration_ms\x18\x02 \x01(\x03\x12\x17\n\x0f\x64uration_api_ms\x18\x03 \x01(\x03\x12\x11\n\tnum_turns\x18\x04 \x01(\x05\x12\x12\n\nsession_id\x18\x05 \x01(\t\"q\n\x07TestLog\x12\x0f\n\x07test_id\x18\x01 \x01(\t\x12-\n\ttimestamp\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x10\n\x08log_type\x18\x03 \x01(\t\x12\x14\n\x0c\x64\x65tails_json\x18\x04 \x01(\t\"~\n\x08TestInfo\x12\x0f\n\x07test_id\x18\x01 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x02 \x01(\t\x12\x1e\n\thttp_test\x18\x03 \x01(\x0b\x32\t.HttpTestH\x00\x12$\n\x0c\x62rowser_test\x18\x04 \x01(\x0b\x32\x0c.BrowserTestH\x00\x42\x06\n\x04test\"\xb3\x05\n\x1bVerificationProgressMessage\x12\x0f\n\x07push_id\x18\x01 \x01(\t\x12=\n\x05stage\x18\x02 \x01(\x0e\x32..VerificationProgressMessage.VerificationStage\x12\x18\n\x05tests\x18\x03 \x03(\x0b\x32\t.TestInfo\x12!\n\x0ctest_results\x18\x04 \x03(\x0b\x32\x0b.TestResult\x12\x1a\n\rerror_message\x18\x05 \x01(\tH\x00\x88\x01\x01\x12\x33\n\nstarted_at\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.TimestampH\x01\x88\x01\x01\x12\x35\n\x0c\x63ompleted_at\x18\x07 \x01(\x0b\x32\x1a.google.protobuf.TimestampH\x02\x88\x01\x01\x12-\n\x0f\x63laude_metadata\x18\x08 \x01(\x0b\x32\x0f.ClaudeMetadataH\x03\x88\x01\x01\x12\x1b\n\ttest_logs\x18\t \x03(\x0b\x32\x08.TestLog\"\xec\x01\n\x11VerificationStage\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x10\n\x0cINITIALIZING\x10\x01\x12\x12\n\x0e\x44IFF_GENERATED\x10\x02\x12\x14\n\x10GENERATING_TESTS\x10\x03\x12\x13\n\x0fTESTS_GENERATED\x10\x04\x12\x11\n\rRUNNING_TESTS\x10\x05\x12\x19\n\x15LOCAL_TESTS_COMPLETED\x10\x06\x12\x17\n\x13VERIFYING_TELEMETRY\x10\x07\x12\x15\n\x11GENERATING_REPORT\x10\x08\x12\x10\n\x0cREPORT_READY\x10\t\x12\t\n\x05\x45RROR\x10\nB\x10\n\x0e_error_messageB\r\n\x0b_started_atB\x0f\n\r_completed_atB\x12\n\x10_claude_metadata\"\xdc\x02\n\x1cVerificationProgressResponse\x12\x0f\n\x07push_id\x18\x01 \x01(\t\x12@\n\x06status\x18\x02 \x01(\x0e\x32\x30.VerificationProgressResponse.VerificationStatus\x12\x1a\n\rerror_message\x18\x03 \x01(\tH\x00\x88\x01\x01\x12\x19\n\x0c\x61gent_report\x18\x04 \x01(\tH\x01\x88\x01\x01\x12\x19\n\x0chuman_report\x18\x05 \x01(\tH\x02\x88\x01\x01\"c\n\x12VerificationStatus\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x0c\n\x08\x41\x43\x43\x45PTED\x10\x01\x12\t\n\x05\x45RROR\x10\x02\x12\x15\n\x11GENERATING_REPORT\x10\x03\x12\x10\n\x0cREPORT_READY\x10\x04\x42\x10\n\x0e_error_messageB\x0f\n\r_agent_reportB\x0f\n\r_human_report\"$\n\x0b\x41uthMessage\x12\x15\n\rsession_token\x18\x01 \x01(\t\"\xa6\x01\n\x0c\x41uthResponse\x12(\n\x06status\x18\x01 \x01(\x0e\x32\x18.AuthResponse.AuthStatus\x12\x1a\n\rerror_message\x18\x02 \x01(\tH\x00\x88\x01\x01\">\n\nAuthStatus\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x11\n\rAUTHENTICATED\x10\x01\x12\x10\n\x0cUNAUTHORIZED\x10\x02\x42\x10\n\x0e_error_message\"\x9c\x04\n\x10WebsocketMessage\x12\x33\n\x0cmessage_type\x18\x01 \x01(\x0e\x32\x1d.WebsocketMessage.MessageType\x12$\n\x0cpush_message\x18\x02 \x01(\x0b\x32\x0c.PushMessageH\x00\x12&\n\rpush_response\x18\x03 \x01(\x0b\x32\r.PushResponseH\x00\x12=\n\x15verification_progress\x18\x04 \x01(\x0b\x32\x1c.VerificationProgressMessageH\x00\x12G\n\x1everification_progress_response\x18\x05 \x01(\x0b\x32\x1d.VerificationProgressResponseH\x00\x12$\n\x0c\x61uth_message\x18\x06 \x01(\x0b\x32\x0c.AuthMessageH\x00\x12&\n\rauth_response\x18\x07 \x01(\x0b\x32\r.AuthResponseH\x00\"\xa3\x01\n\x0bMessageType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x10\n\x0cPUSH_REQUEST\x10\x01\x12\x11\n\rPUSH_RESPONSE\x10\x02\x12\x19\n\x15VERIFICATION_PROGRESS\x10\x03\x12\"\n\x1eVERIFICATION_PROGRESS_RESPONSE\x10\x04\x12\x10\n\x0c\x41UTH_REQUEST\x10\x05\x12\x11\n\rAUTH_RESPONSE\x10\x06\x42\t\n\x07messageB:Z8github.com/bifrostinc/code-sync-mcp/code-sync-sidecar/pbb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -32,14 +33,64 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'ws_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   _globals['DESCRIPTOR']._loaded_options = None
   _globals['DESCRIPTOR']._serialized_options = b'Z8github.com/bifrostinc/code-sync-mcp/code-sync-sidecar/pb'
-  _globals['_PUSHMESSAGE']._serialized_start=12
-  _globals['_PUSHMESSAGE']._serialized_end=109
-  _globals['_PUSHRESPONSE']._serialized_start=112
-  _globals['_PUSHRESPONSE']._serialized_end=292
-  _globals['_PUSHRESPONSE_PUSHSTATUS']._serialized_start=210
-  _globals['_PUSHRESPONSE_PUSHSTATUS']._serialized_end=292
-  _globals['_WEBSOCKETMESSAGE']._serialized_start=295
-  _globals['_WEBSOCKETMESSAGE']._serialized_end=520
-  _globals['_WEBSOCKETMESSAGE_MESSAGETYPE']._serialized_start=446
-  _globals['_WEBSOCKETMESSAGE_MESSAGETYPE']._serialized_end=509
+  _globals['_HTTPREQUESTSTEP_HEADERSENTRY']._loaded_options = None
+  _globals['_HTTPREQUESTSTEP_HEADERSENTRY']._serialized_options = b'8\001'
+  _globals['_HTTPTEST_INITIALVARIABLESENTRY']._loaded_options = None
+  _globals['_HTTPTEST_INITIALVARIABLESENTRY']._serialized_options = b'8\001'
+  _globals['_DATABASEBRANCHUPDATE']._serialized_start=46
+  _globals['_DATABASEBRANCHUPDATE']._serialized_end=192
+  _globals['_PUSHMESSAGE']._serialized_start=195
+  _globals['_PUSHMESSAGE']._serialized_end=409
+  _globals['_PUSHRESPONSE']._serialized_start=412
+  _globals['_PUSHRESPONSE']._serialized_end=592
+  _globals['_PUSHRESPONSE_PUSHSTATUS']._serialized_start=510
+  _globals['_PUSHRESPONSE_PUSHSTATUS']._serialized_end=592
+  _globals['_RESPONSEASSERTION']._serialized_start=595
+  _globals['_RESPONSEASSERTION']._serialized_end=801
+  _globals['_RESPONSEASSERTION_ASSERTIONTYPE']._serialized_start=701
+  _globals['_RESPONSEASSERTION_ASSERTIONTYPE']._serialized_end=792
+  _globals['_VARIABLEEXTRACTION']._serialized_start=804
+  _globals['_VARIABLEEXTRACTION']._serialized_end=980
+  _globals['_VARIABLEEXTRACTION_SOURCETYPE']._serialized_start=907
+  _globals['_VARIABLEEXTRACTION_SOURCETYPE']._serialized_end=971
+  _globals['_HTTPREQUESTSTEP']._serialized_start=983
+  _globals['_HTTPREQUESTSTEP']._serialized_end=1430
+  _globals['_HTTPREQUESTSTEP_HEADERSENTRY']._serialized_start=1284
+  _globals['_HTTPREQUESTSTEP_HEADERSENTRY']._serialized_end=1330
+  _globals['_HTTPREQUESTSTEP_HTTPMETHOD']._serialized_start=1332
+  _globals['_HTTPREQUESTSTEP_HTTPMETHOD']._serialized_end=1421
+  _globals['_HTTPTEST']._serialized_start=1433
+  _globals['_HTTPTEST']._serialized_end=1624
+  _globals['_HTTPTEST_INITIALVARIABLESENTRY']._serialized_start=1569
+  _globals['_HTTPTEST_INITIALVARIABLESENTRY']._serialized_end=1624
+  _globals['_BROWSERTEST']._serialized_start=1626
+  _globals['_BROWSERTEST']._serialized_end=1663
+  _globals['_TESTRESULT']._serialized_start=1666
+  _globals['_TESTRESULT']._serialized_end=1930
+  _globals['_TESTRESULT_TESTSTATUS']._serialized_start=1832
+  _globals['_TESTRESULT_TESTSTATUS']._serialized_end=1914
+  _globals['_CLAUDEMETADATA']._serialized_start=1932
+  _globals['_CLAUDEMETADATA']._serialized_end=2051
+  _globals['_TESTLOG']._serialized_start=2053
+  _globals['_TESTLOG']._serialized_end=2166
+  _globals['_TESTINFO']._serialized_start=2168
+  _globals['_TESTINFO']._serialized_end=2294
+  _globals['_VERIFICATIONPROGRESSMESSAGE']._serialized_start=2297
+  _globals['_VERIFICATIONPROGRESSMESSAGE']._serialized_end=2988
+  _globals['_VERIFICATIONPROGRESSMESSAGE_VERIFICATIONSTAGE']._serialized_start=2682
+  _globals['_VERIFICATIONPROGRESSMESSAGE_VERIFICATIONSTAGE']._serialized_end=2918
+  _globals['_VERIFICATIONPROGRESSRESPONSE']._serialized_start=2991
+  _globals['_VERIFICATIONPROGRESSRESPONSE']._serialized_end=3339
+  _globals['_VERIFICATIONPROGRESSRESPONSE_VERIFICATIONSTATUS']._serialized_start=3188
+  _globals['_VERIFICATIONPROGRESSRESPONSE_VERIFICATIONSTATUS']._serialized_end=3287
+  _globals['_AUTHMESSAGE']._serialized_start=3341
+  _globals['_AUTHMESSAGE']._serialized_end=3377
+  _globals['_AUTHRESPONSE']._serialized_start=3380
+  _globals['_AUTHRESPONSE']._serialized_end=3546
+  _globals['_AUTHRESPONSE_AUTHSTATUS']._serialized_start=3466
+  _globals['_AUTHRESPONSE_AUTHSTATUS']._serialized_end=3528
+  _globals['_WEBSOCKETMESSAGE']._serialized_start=3549
+  _globals['_WEBSOCKETMESSAGE']._serialized_end=4089
+  _globals['_WEBSOCKETMESSAGE_MESSAGETYPE']._serialized_start=3915
+  _globals['_WEBSOCKETMESSAGE_MESSAGETYPE']._serialized_end=4078
 # @@protoc_insertion_point(module_scope)
