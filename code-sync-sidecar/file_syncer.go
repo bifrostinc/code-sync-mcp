@@ -160,13 +160,15 @@ func (rw *FileSyncer) sendPeriodicPings(ctx context.Context) chan error {
 			case <-pingTicker.C:
 				// Send ping to server
 				log.Debug("Sending ping to server")
-				rw.conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
-				if err := rw.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
-					select {
-					case pingDone <- fmt.Errorf("failed to send ping: %w", err):
-					default:
+				if rw.conn != nil {
+					rw.conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
+					if err := rw.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+						select {
+						case pingDone <- fmt.Errorf("failed to send ping: %w", err):
+						default:
+						}
+						return
 					}
-					return
 				}
 			}
 		}
