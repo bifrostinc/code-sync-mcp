@@ -22,7 +22,11 @@ import (
 // execCommand allows mocking exec.CommandContext in tests
 var execCommand = exec.CommandContext
 
-const rsyncPath = "/app/bin/rsync"
+const (
+	rsyncPath  = "/app/bin/rsync"
+	pingPeriod = 10 * time.Second
+	pongWait   = 40 * time.Second
+)
 
 // FileSyncer handles syncing files via rsync triggered by WebSocket messages.
 type FileSyncer struct {
@@ -140,42 +144,94 @@ func (rw *FileSyncer) run(ctx context.Context) {
 	}
 }
 
+func (rw *FileSyncer) sendPeriodicPings(ctx context.Context) chan error {
+	pingDone := make(chan error, 1)
+	pingTicker := time.NewTicker(pingPeriod)
+
+	go func() {
+		defer close(pingDone)
+		defer pingTicker.Stop()
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-rw.done:
+				return
+			case <-pingTicker.C:
+				// Send ping to server
+				log.Debug("Sending ping to server")
+				if rw.conn != nil {
+					rw.conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
+					if err := rw.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+						select {
+						case pingDone <- fmt.Errorf("failed to send ping: %w", err):
+						default:
+						}
+						return
+					}
+				}
+			}
+		}
+	}()
+	return pingDone
+}
+
 // messageLoop reads messages from the WebSocket connection.
 func (rw *FileSyncer) messageLoop(ctx context.Context) error {
-	for {
-		select {
-		case <-ctx.Done():
-			return fmt.Errorf("context cancelled during message loop")
-		case <-rw.done:
-			return fmt.Errorf("stop signal received during message loop")
-		default:
-			// Set a read deadline to avoid blocking indefinitely if connection hangs
-			// Using a slightly longer timeout to reduce noise from temporary network issues
-			readTimeout := 90 * time.Second
-			if err := rw.conn.SetReadDeadline(time.Now().Add(readTimeout)); err != nil {
-				log.Warn("Failed to set read deadline", zap.Error(err))
-			}
+	rw.conn.SetReadDeadline(time.Now().Add(pongWait))
+	rw.conn.SetPongHandler(func(string) error {
+		log.Debug("Received Pong, resetting read deadline")
+		rw.conn.SetReadDeadline(time.Now().Add(pongWait))
+		return nil
+	})
+	pingDone := rw.sendPeriodicPings(ctx)
 
+	// Main message reading loop
+	readDone := make(chan error, 1)
+	go func() {
+		defer close(readDone)
+		for {
 			messageType, message, err := rw.conn.ReadMessage()
 			if err != nil {
-				rw.conn.SetReadDeadline(time.Time{})
-
 				if websocket.IsUnexpectedCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway) {
-					return fmt.Errorf("unexpected WebSocket close error: %w", err)
+					select {
+					case readDone <- fmt.Errorf("unexpected WebSocket close error: %w", err):
+					default:
+					}
+					return
 				}
 				if netErr, ok := err.(net.Error); ok && netErr.Timeout() {
-					log.Warn("WebSocket read timeout", zap.Duration("timeout", readTimeout))
-					return fmt.Errorf("read timeout: %w", err)
+					log.Warn("WebSocket read timeout", zap.Duration("timeout", pongWait))
+					select {
+					case readDone <- fmt.Errorf("read timeout: %w", err):
+					default:
+					}
+					return
 				}
-				return fmt.Errorf("WebSocket read error: %w", err)
+				select {
+				case readDone <- fmt.Errorf("WebSocket read error: %w", err):
+				default:
+				}
+				return
 			}
-
-			rw.conn.SetReadDeadline(time.Time{})
 
 			if err := rw.handleMessage(messageType, message); err != nil {
 				log.Error("Error handling message", zap.Error(err))
+				// Continue processing other messages even if one fails
 			}
 		}
+	}()
+
+	// Wait for either context cancellation, stop signal, or connection error
+	select {
+	case <-ctx.Done():
+		return fmt.Errorf("context cancelled during message loop")
+	case <-rw.done:
+		return fmt.Errorf("stop signal received during message loop")
+	case err := <-readDone:
+		return err
+	case err := <-pingDone:
+		return err
 	}
 }
 
@@ -198,12 +254,6 @@ func (rw *FileSyncer) handleMessage(messageType int, message []byte) error {
 			return rw.handlePushRequest(incomingMsg.GetPushMessage())
 		default:
 			return fmt.Errorf("received unexpected message type: %s", msgTypeStr)
-		}
-	case websocket.PingMessage:
-		log.Debug("Received Ping, sending Pong")
-		if err := rw.conn.WriteMessage(websocket.PongMessage, nil); err != nil {
-			log.Warn("Failed to send pong", zap.Error(err))
-			return fmt.Errorf("failed to send pong: %w", err)
 		}
 	case websocket.CloseMessage:
 		log.Info("Received close message from server.")
